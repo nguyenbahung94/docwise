@@ -75,6 +75,8 @@ buildSkillDocs/
   agents/
     doc-extractor/
       agent.md                    # AI agent that reads raw content and extracts rules
+    keyword-scanner/
+      agent.md                    # AI agent that scans sources for keywords (Tier 1)
 
   sources.yaml                    # Registered sources (user adds over time)
 

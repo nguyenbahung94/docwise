@@ -124,11 +124,23 @@ To force extraction now: /generate --topic [topic]
 | <keywords csv> | <topic> | <url or repo> | no |
 ```
 
-### .cache/sync-state.yaml entry:
+### .cache/sync-state.yaml entry (doc):
 ```yaml
-- type: <doc|repo>
-  url: "<url>"        # or repo: "<owner/name>"
+- type: doc
+  url: "<url>"
   content_hash: "<hash of fetched content>"
+  last_checked: "<today>"
+  last_changed: "<today>"
+  status: clean
+  extracted: false
+  error: null
+```
+
+### .cache/sync-state.yaml entry (repo):
+```yaml
+- type: repo
+  repo: "<owner/name>"
+  last_commit: "<HEAD commit SHA>"
   last_checked: "<today>"
   last_changed: "<today>"
   status: clean
