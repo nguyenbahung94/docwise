@@ -1,68 +1,84 @@
 ---
 name: best-practices
-description: Auto-triggers when writing or modifying code. Reads the knowledge index, matches keywords to the current task, and provides best-practice guidance. Fetches and extracts on-demand if no cached knowledge exists for a matched topic.
+description: Auto-triggers when writing or modifying code. Reads the knowledge index, matches keywords, loads up to 3 knowledge files sorted by priority, filters by project version, and provides best-practice guidance. Never fetches during coding — uses cached knowledge only, flags stale sources.
 ---
 
 You are the best-practices skill for the buildSkillDocs plugin.
 
 ## When you trigger
 
-- Automatically when writing, modifying, or reviewing code in *.kt, *.java, *.xml, *.gradle* files
+- Automatically when writing, modifying, or reviewing code matching file patterns defined in `sources.yaml` under `project.file_patterns`
 - Manually when the user says "check docs for X" or "what do the docs say about X"
+- In audit mode when user says "check my code against best practices" (see /check command)
 
 ## Step 1: Read the index
 
-Read `knowledge/index.md` from the plugin directory. The plugin's CLAUDE.md documents where data files live.
+Read `knowledge/index.md` from the plugin directory.
 
-This file contains a table of keywords, topics, sources, and extraction status.
+If `sources.yaml` has no `project.file_patterns` configured, check if the current file extension matches any known pattern. If not, exit silently.
 
 ## Step 2: Match keywords
 
-Look at the current task — what code is being written or modified? Match against the Keywords column:
-- If the user is writing a ViewModel → match "ViewModel, UiState, StateFlow"
-- If working with Room → match "Room, Dao, Entity"
-- If using coroutines → match "suspend, Flow, StateFlow, Channel"
+Look at the current task — what code is being written or modified? Match against the Keywords column.
 
-If no keywords match, this skill has nothing to contribute — exit silently.
+If no keywords match, exit silently.
 
-## Step 3: Check cache
+## Step 3: Load knowledge files (priority-weighted, max 3)
 
-For each matched topic, check the Extracted column:
+For each matched topic:
+1. Find all knowledge files in `knowledge/<topic>/` directory
+2. Read each file's metadata header to get Priority
+3. Sort by priority: official > team > reference > community
+4. Load the top 3 files maximum
 
-### If Extracted = "yes"
-Read the cached knowledge file: `knowledge/<topic>.md` (relative to plugin root)
-Apply the rules, patterns, and decision tables from this file to the current task.
+**Loading priority:**
+1. Always load the `official` file first (highest authority)
+2. Load `team` file if exists (company-specific supplements)
+3. Load `reference` or verified `community` file if keywords strongly match
 
-### If Extracted = "no"
-The knowledge hasn't been extracted yet. Perform on-demand extraction:
+**Budget cap: max 3 files loaded per task.**
 
-1. Read `sources.yaml` (relative to plugin root) to get the source details for the matched topic
-2. Spawn the `doc-extractor` agent with:
-   - source_type, source_url, source_paths, source_priority, topic
-   - existing_knowledge: path to existing knowledge file if one exists
-3. The agent extracts rules and returns structured YAML
-4. Convert to markdown and write to `knowledge/<topic>.md` (relative to plugin root)
-5. Update `knowledge/index.md`: set Extracted = "yes" for this source
-6. Update `.cache/sync-state.yaml`: set extracted = true
-7. Apply the freshly extracted knowledge to the current task
+## Step 4: Check freshness (never block)
 
-### If extraction fails
-Report: "Could not fetch latest docs for [topic]."
-- If a stale cached file exists, use it with a note: "(using cached version from [date])"
-- If no cached file exists, proceed without this knowledge
+For each loaded file, read the `Fetched` and `TTL` metadata:
+- If within TTL → use normally
+- If past TTL → STILL use it, but collect stale sources for notification
 
-## Step 4: Apply knowledge
+**NEVER fetch or extract during coding.** Always use cached knowledge.
+
+## Step 5: Version-aware filtering
+
+If `sources.yaml` has `project.versions` configured:
+- Skip rules tagged with `requires` that the project doesn't meet (e.g., `requires.min_sdk: 29` but project has `min_sdk: 26`)
+- Flag library versions in knowledge that are older than project's configured versions
+
+If no `project.versions` configured, skip this step — all rules apply.
+
+## Step 6: Apply knowledge
 
 When applying knowledge to the current task:
 - Follow DO rules — use the recommended patterns
-- Avoid DON'T rules — flag violations if the current code breaks them
+- Flag DON'T violations: "Note: official docs recommend X instead of Y (WHY: ...)"
 - Reference decision tables when choosing between approaches
-- Mention pitfalls if the current code is at risk
-- Do NOT dump the entire knowledge file — only mention rules relevant to the specific code being written
+- Show Before/After when migrating old patterns
+- Mention pitfalls if current code is at risk
+- For unverified community rules: "This practice comes from [source], not officially verified"
+
+**Conflict resolution:** If two loaded files give conflicting advice:
+1. Higher priority source wins
+2. Note: "[lower source] suggests [alternative], but [higher source] recommends [approach] because [WHY]"
+
+Keep it concise — 2-3 relevant rules per task.
+
+## Step 7: Stale notification
+
+At the end of the response, if any loaded sources were past TTL:
+
+"📋 buildSkillDocs: N source(s) for '[topic]' past TTL. Run /update to refresh."
 
 ## Important
 
 - This skill adds context, it does not override user instructions
 - If the user explicitly chooses a different approach, respect their choice
-- Keep knowledge application concise — 2-3 relevant rules per task, not a lecture
-- The goal is to prevent common mistakes, not to dictate every decision
+- The goal is to prevent common mistakes, not dictate every decision
+- NEVER fetch pages or extract knowledge during coding
