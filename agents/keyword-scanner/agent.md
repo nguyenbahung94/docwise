@@ -19,6 +19,7 @@ You will receive:
 - `source_url`: URL of the doc page or GitHub repo (e.g., "google/nowinandroid")
 - `source_paths`: (repo only) glob patterns for which files to scan
 - `source_topic`: (optional) pre-assigned topic name
+- `priority`: the source's priority level (e.g., "high", "medium", "low")
 
 ## For doc pages
 
@@ -49,6 +50,7 @@ Return a YAML block:
 ```yaml
 keywords: ["keyword1", "keyword2", "ClassName", "functionName", ...]
 topic: "suggested-topic-name"
+priority: "high"     # pass through the input priority value unchanged
 sub_pages:           # doc only — omit for repos
   - title: "Sub Page Title"
     url: "https://..."
@@ -58,6 +60,14 @@ directories:         # repo only — omit for docs
   - path: "core/model"
     description: "data models"
 ```
+
+When writing a row to index.md, use this format:
+
+```
+| <keywords csv> | <topic> | <url or repo> | <priority> | no | — |
+```
+
+This matches the index.md column order: `| Keywords | Topic | Source | Priority | Extracted | Fresh |`
 
 ## Rules
 
