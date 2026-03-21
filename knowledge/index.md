@@ -1,4 +1,4 @@
 # Knowledge Index
 
-| Keywords | Topic | Source | Extracted |
-|---|---|---|---|
+| Keywords | Topic | Source | Priority | Extracted | Fresh |
+|---|---|---|---|---|---|
