@@ -4,18 +4,20 @@
 
 AI coding assistants (Claude Code, Cursor, etc.) don't reliably follow the latest best practices from official documentation. They use outdated or generic patterns because their training data is frozen in time. Developers must manually provide doc links to get correct, modern code.
 
-The Android + Kotlin ecosystem is especially affected — hundreds of doc pages, frequent updates, deprecated APIs, and evolving recommended patterns.
+This affects every ecosystem — Android, React, Python, iOS, and more. Hundreds of doc pages, frequent updates, deprecated APIs, and evolving recommended patterns.
 
 ## Solution
 
 **buildSkillDocs** is a Claude Code plugin that:
 
-1. Ingests official documentation pages and GitHub repositories
+1. Ingests official documentation pages, GitHub repos, blogs, and any web source
 2. Builds a lightweight keyword index (cheap) — NOT full content extraction upfront
-3. When AI encounters matching keywords during coding, it fetches and extracts from the source on-demand
-4. Caches extracted knowledge so the same source is never re-extracted twice
-5. Tracks source changes over time — only invalidates cache when content actually changed
-6. Delivers knowledge through a single auto-triggering skill
+3. Extracts condensed knowledge **per-source** (not merged) — each source gets its own small file
+4. Verifies community sources against official docs before trusting them
+5. Tracks freshness via TTL — auto-detects stale knowledge, never blocks coding
+6. Delivers knowledge through a single auto-triggering skill with priority-weighted loading
+7. Ships with starter profiles for popular tech stacks (Android, React, Python, etc.)
+8. Works for **any technology** — configurable file triggers, not hardcoded
 
 ## Core Design: Two-Tier Lazy Extraction
 
@@ -25,11 +27,11 @@ When a source is added, the system scans for **keywords, topic names, and key AP
 
 Cost: ~500-1K tokens per source (just scanning for keywords).
 
-### Tier 2 — Full Extraction (on-demand, only when needed)
+### Tier 2 — Full Extraction (via `/generate` or `/update`)
 
-When the AI hits matching keywords during an actual coding task, it fetches the full source and extracts detailed rules. The result is cached as a knowledge file for next time.
+When the user runs `/generate` or `/update` detects changed content, the system fetches the full source and extracts detailed rules. The result is cached as a **per-source knowledge file**. Extraction never happens during coding — it's always an explicit user action.
 
-Cost: ~12K per doc page, ~35K per repo — but only when actually needed.
+Cost: ~12K per doc page, ~35K per repo — but only for sources the user chooses to extract.
 
 ### Why lazy?
 
@@ -40,18 +42,11 @@ Cost: ~12K per doc page, ~35K per repo — but only when actually needed.
 
 ## Users
 
-- Individual Android/Kotlin developers using AI tools
+- Individual developers using AI tools (any tech stack)
 - Development teams sharing a common knowledge base
-- Source-agnostic — works with any documentation or GitHub repo, starting with Android + Kotlin
+- Open source community — install plugin, pick a starter profile, start coding
 
 ## Architecture
-
-### Two parts
-
-| Part | Role |
-|---|---|
-| **CLI commands** (slash commands in Claude Code) | Builder — adds sources, indexes keywords, manages cache |
-| **best-practices skill** | Consumer — auto-triggers when AI writes code, looks up index, fetches on-demand |
 
 ### Plugin structure
 
@@ -61,34 +56,127 @@ buildSkillDocs/
   CLAUDE.md                       # Plugin instructions
 
   commands/
+    setup.md                      # /setup — first-install profile picker
     add-source.md                 # /add-source --doc <url> or --repo <repo>
     list-sources.md               # /list-sources
-    generate.md                   # /generate (force full extraction for all/specific sources)
-    update.md                     # /update (check for source changes, invalidate stale cache)
-    diff.md                       # /diff (show what changed, zero tokens)
+    generate.md                   # /generate (force full extraction)
+    update.md                     # /update (check for changes, refresh stale)
+    diff.md                       # /diff (show cached status)
     remove-source.md              # /remove-source <url>
+    check.md                      # /check — audit current code against best practices
 
   skills/
     best-practices/
-      skill.md                    # ONE skill — auto-triggers, reads index, fetches on-demand
+      skill.md                    # ONE skill — auto-triggers, reads index, loads knowledge
 
   agents/
     doc-extractor/
-      agent.md                    # AI agent that reads raw content and extracts rules
+      agent.md                    # AI agent — Tier 2 extraction with verification
     keyword-scanner/
-      agent.md                    # AI agent that scans sources for keywords (Tier 1)
+      agent.md                    # AI agent — Tier 1 keyword scanning
+    source-verifier/
+      agent.md                    # AI agent — verifies community sources against official
 
-  sources.yaml                    # Registered sources (user adds over time)
+  profiles/                       # Starter packs for tech stacks
+    android/
+      sources.yaml
+      knowledge/
+    react/
+      sources.yaml
+      knowledge/
+    python/
+      sources.yaml
+      knowledge/
+    ios/
+      sources.yaml
+      knowledge/
+    custom/
+      sources.yaml
+      knowledge/
 
+  sources.yaml                    # Active source registry
   .cache/
-    sync-state.yaml               # Content hashes, commit SHAs, last checked dates
+    sync-state.yaml               # Content hashes, commit SHAs, TTL dates
 
-  knowledge/                      # Cached extraction output — AI reads these
-    index.md                      # Keyword-to-source mapping (Tier 1 — always loaded)
-    architecture.md               # Full extraction (Tier 2 — created on first need)
-    concurrency.md
+  knowledge/                      # Per-source knowledge files, grouped by topic
+    index.md                      # Keyword-to-source mapping
+    architecture/
+      core.md                     # From official docs
+      nowinandroid.md             # From reference repo
+      viewmodel-blog.md           # From community (verified)
+    concurrency/
+      core.md
+      coroutines-repo.md
     ...
 ```
+
+## Project Configuration
+
+### Configurable file triggers
+
+The skill trigger is **not hardcoded** to any language. It's configured per project:
+
+```yaml
+# sources.yaml — project section
+project:
+  name: "my-project"
+  file_patterns: ["*.kt", "*.java", "*.xml", "*.gradle*"]   # what files trigger the skill
+  versions:                                                    # optional, for version-aware rules
+    min_sdk: 26
+    kotlin: "2.0"
+    compose_bom: "2024.12"
+```
+
+Examples for other stacks:
+
+```yaml
+# React project
+project:
+  file_patterns: ["*.tsx", "*.ts", "*.jsx", "*.css"]
+  versions:
+    node: "20"
+    react: "19"
+
+# Python project
+project:
+  file_patterns: ["*.py", "*.yaml"]
+  versions:
+    python: "3.12"
+```
+
+The CLAUDE.md dispatch rule reads `file_patterns` from `sources.yaml` instead of using hardcoded extensions.
+
+## First-Install Experience: `/setup` Command
+
+```
+/setup
+
+> Welcome to buildSkillDocs!
+>
+> Pick your stack:
+>   1. Android (Kotlin + Jetpack) — 15 sources pre-configured
+>   2. React (TypeScript + Next.js) — 12 sources pre-configured
+>   3. Python (Django + FastAPI) — 10 sources pre-configured
+>   4. iOS (Swift + SwiftUI) — 11 sources pre-configured
+>   5. Custom — start empty, add your own sources
+>
+> You can always add more sources later with /add-source.
+
+User picks: 1
+
+> Setting up Android profile...
+> Copied sources.yaml and pre-built knowledge files.
+> File triggers set to: *.kt, *.java, *.xml, *.gradle*
+>
+> Ready! Your AI now follows Android best practices.
+> Run /list-sources to see what's included.
+```
+
+The `/setup` command:
+1. Copies the selected profile's `sources.yaml` and `knowledge/` directory into the plugin root
+2. Sets `project.file_patterns` based on the profile
+3. Pre-built knowledge files are included — no `/generate` needed
+4. User can add more sources later with `/add-source`
 
 ## Source Management
 
@@ -99,6 +187,7 @@ Users register sources via slash commands:
 ```
 /add-source --doc "https://developer.android.com/topic/architecture"
 /add-source --repo "google/nowinandroid"
+/add-source --doc "https://medium.com/@someone/advanced-viewmodel" --priority community
 ```
 
 Optional topic grouping and priority:
@@ -109,7 +198,7 @@ Optional topic grouping and priority:
 
 ### Sub-page discovery
 
-When a doc page has a sidebar with child pages (common on developer.android.com, kotlinlang.org), the system discovers them and lets the user choose:
+When a doc page has a sidebar with child pages, the system discovers them and lets the user choose:
 
 ```
 /add-source --doc "https://developer.android.com/topic/architecture"
@@ -117,24 +206,11 @@ When a doc page has a sidebar with child pages (common on developer.android.com,
 > Scanning page... Found 12 sub-pages:
 >   1. Guide to app architecture
 >   2. UI layer
->   3. State holders and UI state
->   4. UI events
->   5. Domain layer
->   6. Data layer
->   7. Data layer - Repositories
->   8. Data layer - Build an offline-first app
 >   ...
 >
 > Add all? Or pick specific ones? (all / 1,2,5,6 / none)
 > [Default: all]
 ```
-
-Rules:
-- The parent page is always added
-- Sub-pages are listed for selection
-- User picks which sub-pages to include
-- Each selected sub-page becomes its own source entry (inherits parent's topic and priority)
-- `none` = only the parent page
 
 For repos, sub-page discovery is replaced by directory listing:
 
@@ -144,10 +220,6 @@ For repos, sub-page discovery is replaced by directory listing:
 > Scanning repo structure... Key directories found:
 >   1. app/src/main/kotlin (main app)
 >   2. core/model (data models)
->   3. core/data (repositories)
->   4. core/domain (use cases)
->   5. core/ui (shared UI)
->   6. feature/* (feature modules)
 >   ...
 >
 > Include all? Or pick specific ones? (all / 1,2,3,4 / none)
@@ -157,36 +229,54 @@ For repos, sub-page discovery is replaced by directory listing:
 ### sources.yaml
 
 ```yaml
+project:
+  name: "my-android-app"
+  file_patterns: ["*.kt", "*.java", "*.xml", "*.gradle*"]
+  versions:
+    min_sdk: 26
+    kotlin: "2.0"
+    compose_bom: "2024.12"
+
 sources:
   - type: doc
     url: "https://developer.android.com/topic/architecture"
     topics: [architecture]
-    priority: official       # official > reference > community
+    priority: official
+    ttl_days: 30
     last_synced: null
-    extracted: false         # true once Tier 2 extraction has been done
+    extracted: false
 
   - type: repo
     repo: "google/nowinandroid"
     topics: [architecture, compose, navigation]
     paths: ["app/src/main", "core/*/src/main", "*.md"]
     priority: reference
+    ttl_days: 14
     last_synced: null
     extracted: false
+
+  - type: doc
+    url: "https://medium.com/@someone/advanced-viewmodel-patterns"
+    topics: [architecture]
+    priority: community
+    ttl_days: 90
+    last_synced: null
+    extracted: false
+    verified: false          # community sources need verification
 ```
 
 ### Source priority levels
 
-| Priority | Meaning | Example |
-|---|---|---|
-| `official` (highest) | Official documentation from the technology owner | developer.android.com, kotlinlang.org |
-| `reference` | Official reference/sample repos | google/nowinandroid, android/architecture-samples |
-| `community` (lowest) | Community resources, blog posts, third-party repos | jakewharton/*, medium articles |
+| Priority | Meaning | Default TTL | Trusted? | Example |
+|---|---|---|---|---|
+| `team` (highest) | Your company's internal rules | 90 days | Yes | internal wiki, team conventions |
+| `official` | Official documentation from the technology owner | 30 days | Yes | developer.android.com, kotlinlang.org |
+| `reference` | Official reference/sample repos | 14 days | Yes | google/nowinandroid |
+| `community` (lowest) | Blogs, Medium, third-party repos | 90 days | **No — requires verification** | medium.com articles, personal blogs |
 
 Default priority: `official` for doc sources, `reference` for repo sources. Overridable via `--priority` flag.
 
-### Source-agnostic design
-
-The system is not hardcoded to Android. Any doc URL or GitHub repo can be added. The knowledge base grows as more sources are registered. Multiple sources that relate to the same topic merge into one knowledge file.
+TTL is configurable per source via `ttl_days` field. Defaults shown above.
 
 ## Indexing Pipeline (Tier 1 — cheap)
 
@@ -206,71 +296,145 @@ Source (URL or repo)
    [ Done ]           Source registered, ready for on-demand extraction
 ```
 
-### What gets indexed (keywords only)
-
-| Source type | What is scanned | What is extracted |
-|---|---|---|
-| Doc page | Page title, headings (h1-h3), code block class/function names | Keywords, API names, topic label |
-| Repo | File names, class names from key files, README headings | Keywords, pattern names, library versions |
-
 ### index.md format (Tier 1 — always loaded by skill)
 
 ```markdown
 # Knowledge Index
 
-| Keywords | Topic | Source | Extracted |
-|---|---|---|---|
-| ViewModel, UiState, StateFlow, UI layer, screen state | architecture | developer.android.com/topic/architecture | yes |
-| WorkManager, CoroutineWorker, Constraints, OneTimeWorkRequest | background-work | developer.android.com/topic/libraries/architecture/workmanager | no |
-| suspend, Flow, StateFlow, Channel, coroutineScope, launch | concurrency | kotlinlang.org/docs/coroutines-guide.html | no |
-| sealed interface, TopicUiState, NiaAppState, OfflineFirstRepository | architecture | google/nowinandroid | yes |
-| Room, Dao, Entity, Database, TypeConverter, Migration | data-persistence | developer.android.com/training/data-storage/room | no |
+| Keywords | Topic | Source | Priority | Extracted | Fresh |
+|---|---|---|---|---|---|
+| ViewModel, UiState, StateFlow | architecture | developer.android.com/topic/architecture | official | yes | yes |
+| sealed interface, TopicUiState | architecture | google/nowinandroid | reference | yes | yes |
+| SharedFlow, SavedStateHandle | architecture | medium.com/@someone/... | community | yes | stale (25d) |
+| WorkManager, CoroutineWorker | background-work | developer.android.com/... | official | no | — |
 ```
 
-The `Extracted` column tells the skill whether a cached knowledge file exists or if it needs to fetch on-demand.
+The `Fresh` column shows whether the knowledge file is within its TTL. Stale files are still usable but flagged.
 
 ## Extraction Pipeline (Tier 2 — on-demand)
 
-When the skill matches keywords but no cached knowledge file exists:
+### Per-source knowledge files
+
+Each source gets its **own** knowledge file, organized under a topic directory:
 
 ```
-Matched source (from index)
-        |
-        v
-   [ Fetch ]       Fetch full doc page via WebFetch / read repo files matching paths
-        |
-        v
-   [ Extract ]     AI reads raw content, produces structured output
-        |
-        v
-   [ Cache ]       Write to knowledge/<topic>.md, mark source as extracted
-        |
-        v
-   [ Apply ]       Skill uses the freshly extracted knowledge for the current task
+knowledge/
+  architecture/
+    core.md                    ← from developer.android.com (official)
+    nowinandroid.md            ← from google/nowinandroid (reference)
+    advanced-viewmodel.md      ← from Medium article (community, verified)
+  concurrency/
+    core.md                    ← from kotlinlang.org (official)
+    coroutines-repo.md         ← from Kotlin/kotlinx.coroutines (reference)
 ```
 
-### Fetch strategy
+**Why per-source, not merged:**
+- Each source stays independent — adding/removing a source doesn't affect others
+- Each file tracks its own TTL and freshness
+- Verification status is per-source
+- No merging conflicts or growing files
 
-| Source type | Method | Details |
+### Knowledge file format
+
+Each file contains condensed highlights with "why" annotations and before/after examples:
+
+```markdown
+<!-- Source: developer.android.com/topic/architecture -->
+<!-- Priority: official -->
+<!-- Fetched: 2026-03-21 -->
+<!-- TTL: 30 days — re-fetch after 2026-04-20 -->
+<!-- Verified: trusted (official source) -->
+
+# Architecture — Core Rules
+
+## Rules
+- DO: Expose UI state via StateFlow, not LiveData
+  WHY: Integrates with coroutines, survives config changes, null-safe by default
+  EXCEPTION: Legacy Java modules that can't use coroutines
+
+- DON'T: Pass Context into ViewModel
+  WHY: Causes memory leaks — ViewModel outlives Activity/Fragment
+
+## Before/After
+❌ Old way:
+val name = MutableLiveData<String>()
+val loading = MutableLiveData<Boolean>()
+
+✅ New way:
+data class ProfileUiState(val name: String = "", val loading: Boolean = false)
+val uiState: StateFlow<ProfileUiState> = ...
+
+## Decision table
+| Need | Use | Not |
 |---|---|---|
-| Doc page | `WebFetch` tool | Handles JavaScript-rendered pages (e.g., developer.android.com) |
-| GitHub repo | `git clone --depth 1` or cached clone | Shallow clone. Only reads files matching `paths` in sources.yaml |
+| Expose UI state | StateFlow<UiState> | LiveData |
+| Share logic across ViewModels | UseCase | Base ViewModel |
 
-### Repo file selection (paths filter)
-
-```yaml
-# Default if paths is not specified:
-paths: ["**/*.md", "**/*.kt", "**/build.gradle*"]
-
-# User can customize per repo:
-paths: ["app/src/main", "core/*/src/main", "*.md"]
+## Pitfalls
+- Using LiveData in new Kotlin code
+  WHY: Deprecated pattern — StateFlow integrates better with coroutines
 ```
 
-The `paths` field is repo-only. Doc sources always fetch the single URL.
+### Repo extraction: code snippets, not full files
+
+For repos, the extractor reads key files but saves **only the pattern-defining code**:
+
+```markdown
+<!-- Source: google/nowinandroid -->
+<!-- Priority: reference -->
+<!-- Fetched: 2026-03-21 -->
+<!-- TTL: 14 days -->
+
+# Architecture — nowinandroid patterns
+
+## Structure
+- Modules: core/data, core/domain, core/model, feature/*
+- Each feature = standalone module with own ViewModel
+
+## Pattern: ViewModel with UiState
+```kotlin
+// From: feature/topic/TopicViewModel.kt
+class TopicViewModel @Inject constructor(
+    private val getTopicsUseCase: GetTopicsUseCase
+) : ViewModel() {
+
+    val uiState: StateFlow<TopicUiState> = getTopicsUseCase()
+        .map(TopicUiState::Success)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = TopicUiState.Loading
+        )
+}
+
+sealed interface TopicUiState {
+    data object Loading : TopicUiState
+    data class Success(val topics: List<Topic>) : TopicUiState
+}
+```
+> Key: inject UseCase, expose StateFlow, use stateIn with WhileSubscribed, sealed interface
+
+## Versions
+- Kotlin: 2.0.x
+- Compose BOM: 2024.12
+- Hilt: 2.51
+```
+
+### Knowledge file size limit
+
+Target: **max 800 tokens per file**. With max 3 files loaded per task, worst case is ~2400 tokens. The extractor must prioritize: high-confidence rules first, then decision tables, then pitfalls, then patterns with code, then versions.
+
+### Extractor → Knowledge file pipeline
+
+The extractor agent produces a structured YAML output (see schema below). The system then renders this YAML into a markdown knowledge file. The YAML is intermediate — only the markdown file is stored and loaded by the skill.
+
+### Topic normalization
+
+Topic names are always kebab-case lowercase: `architecture`, `background-work`, `data-persistence`. If a user provides `--topic "Background Work"`, it is normalized to `background-work`. This becomes the directory name under `knowledge/`.
 
 ### Extractor output schema
 
-The doc-extractor agent produces structured output:
+The doc-extractor agent produces structured output including "why" annotations and before/after:
 
 ```yaml
 topic: "architecture"
@@ -281,17 +445,25 @@ extracted:
     - rule: "Expose UI state via StateFlow, not LiveData"
       type: do
       confidence: high
+      why: "Integrates with coroutines, survives config changes, null-safe by default"
+      exception: "Legacy Java modules that can't use coroutines"
     - rule: "Do NOT pass Context into ViewModel"
       type: dont
       confidence: high
+      why: "Causes memory leaks — ViewModel outlives Activity/Fragment"
+  before_after:
+    - name: "UI State pattern"
+      before: |
+        val name = MutableLiveData<String>()
+        val loading = MutableLiveData<Boolean>()
+      after: |
+        data class ProfileUiState(val name: String = "", val loading: Boolean = false)
+        val uiState: StateFlow<ProfileUiState> = ...
+      why: "Single state object is easier to test and reason about"
   patterns:
     - name: "UiState sealed interface"
       code: |
-        sealed interface TopicUiState {
-          data class Success(val topics: List<Topic>) : TopicUiState
-          data object Loading : TopicUiState
-          data object Error : TopicUiState
-        }
+        sealed interface TopicUiState { ... }
       context: "From nowinandroid — preferred over data class for multi-state"
   decision_tables:
     - question: "How to expose UI state?"
@@ -308,112 +480,103 @@ extracted:
       version: "2.8.x"
 ```
 
-### Conflict resolution
+## Source Verification
 
-When multiple sources provide guidance on the same topic:
+### Problem
 
-1. **Same advice, different wording** — merge into the clearest version
-2. **Contradictory advice** — higher priority source wins. The losing source's advice is noted as "Alternative (from [source]): ..." only if the contradiction is meaningful
-3. **Complementary advice** — both are included (e.g., docs explain the rule, repo shows the implementation)
+Community sources (blogs, Medium articles) can contain wrong advice, outdated patterns, or opinions presented as facts. The plugin must verify before trusting.
 
-Priority order: `official` > `reference` > `community`. Within the same priority, more recently synced source wins.
+### Verification flow
 
-### Output format (knowledge files)
+```
+Community source added (/add-source --priority community)
+        |
+        v
+   [ Extract rules from the source ]
+        |
+        v
+   [ Spawn source-verifier agent ]
+        |
+        v
+   For each extracted rule, compare against official sources:
+        |
+        +-- AGREES with official → ✅ verified
+        |
+        +-- CONTRADICTS official → ❌ rejected (warn user)
+        |
+        +-- NEW info, not in official → ⚠ unverified
+        |
+        +-- Can't determine → ⚠ unverified
+```
 
-Each knowledge file is organized by concept, not by source page. Every file includes a metadata header:
+### Verification statuses
 
-```markdown
-<!-- Generated: 2026-03-21 | Sources: 3 docs, 1 repo | Max token budget: 800 -->
-
-# Architecture — Best Practices
-
-## Rules (from official docs)
-- UI layer: ViewModel + UiState pattern
-- Data layer: Repository pattern, single source of truth
-- Domain layer: UseCases for reusable business logic
-
-## Patterns (from nowinandroid repo)
-- UiState: sealed interface, not data class
-- ViewModel exposes: StateFlow<UiState>, not multiple flows
-- Repository uses: Offline-first with Room + Network sync
-
-## Decision table
-| Need | Use | Not |
+| Status | Meaning | Skill behavior |
 |---|---|---|
-| Expose UI state | StateFlow<UiState> | LiveData |
-| Share logic across ViewModels | UseCase | Base ViewModel |
-| Cache network data | Repository + Room | ViewModel |
+| ✅ `verified` | Matches official sources | Apply confidently |
+| ⚠ `unverified` | Not covered by official — could be correct | Apply but note: "from community source, not officially verified" |
+| ❌ `rejected` | Contradicts official recommendation | Never apply. Warn user if their code follows this pattern |
 
-## Common pitfalls
-- Do NOT pass Context into ViewModel
-- Do NOT put business rules in ViewModel — use UseCase
-- Do NOT use LiveData for new code — use StateFlow
-```
+### What gets verified
 
-### Knowledge file size limit
+- Only `community` priority sources are verified
+- `team`, `official`, and `reference` sources are trusted by default
+- Verification runs automatically during extraction — no user action needed
+- Each rule in the knowledge file is tagged with its verification status
 
-Target: **max 800 tokens per file**. If a topic exceeds this after merging sources, split by sub-topic:
+### Version-aware verification
 
-```
-knowledge/
-  architecture.md            -> too large after adding 8 sources
-  architecture-ui-layer.md   -> split into sub-topics
-  architecture-data-layer.md
-  architecture-domain.md
-```
+If the project has `versions` configured in `sources.yaml`, the verifier can also check:
+- "This rule requires minSdk 29+ but your project targets 26" → flag as incompatible
+- "This library version is older than what you're using" → flag as outdated
 
-The index.md is updated to reflect the split. The skill handles this transparently.
+## TTL and Freshness
 
-## Smart Caching & Change Detection
+### Smart TTL defaults
 
-### The rule: only invalidate cache when the source actually changed
-
-### `/update` flow (cheap)
-
-```
-Step 1: Check each source for changes (NO AI cost)
-  - Doc page: fetch page, compare content hash with stored hash
-    - Same hash -> SKIP (zero tokens)
-    - Different -> mark dirty, set extracted = false (invalidate cache)
-  - Repo: git fetch, check latest commit SHA
-    - Same SHA -> SKIP (zero tokens)
-    - Different -> check which files changed (git diff), mark relevant ones dirty
-
-Step 2: Dirty sources have their cache invalidated
-  - Existing knowledge file is NOT deleted (kept as fallback)
-  - Source is marked extracted = false in index
-  - Next time skill needs this topic, it re-extracts fresh
-
-Step 3: Re-index keywords for dirty sources (cheap — Tier 1 only)
-```
-
-Note: `/update` does NOT trigger full re-extraction. It only invalidates stale caches. Re-extraction happens lazily when the skill next needs the topic.
-
-### `/update` flags
-
-| Flag | Effect |
-|---|---|
-| (none) | Smart update — check for changes, invalidate stale caches |
-| `--force` | Invalidate all caches regardless of hash/SHA |
-| `--force --source <url>` | Invalidate one specific source's cache |
-| `--dry-run` | Show what would be invalidated without doing it |
-
-### `/generate` — force full extraction
-
-Unlike the normal lazy flow, `/generate` forces Tier 2 extraction immediately:
-
-| Flag | Effect | Token cost |
+| Source priority | Default TTL | Reason |
 |---|---|---|
-| `/generate` | Extract all sources that haven't been extracted yet | Medium-High |
-| `/generate --all` | Re-extract ALL sources (ignore cache) | High |
-| `/generate --topic <name>` | Extract all sources for one topic | Low-Medium |
-| `/generate --dry-run` | Show what would be extracted | Zero |
+| `team` | 90 days | Internal rules rarely change |
+| `official` | 30 days | Official docs update moderately |
+| `reference` | 14 days | Reference repos update frequently |
+| `community` | 90 days | Blog posts almost never change |
 
-Use `/generate` when you want to pre-build the knowledge base (e.g., before committing for your team).
+User can override per source via `ttl_days` field in sources.yaml.
 
-### `/diff` — show what changed (zero tokens)
+### Freshness check — never blocks coding
 
-Reports which sources changed since last sync without extracting or invalidating.
+```
+Skill triggers during coding
+        |
+        v
+   Load knowledge files for matched topic
+        |
+        v
+   For each file, check Fetched date vs TTL:
+        |
+        +-- Fresh (within TTL) → use as-is
+        |
+        +-- Stale (past TTL) → STILL use it, don't block
+                                 Flag at end of response:
+                                 "📋 1 source for 'architecture' is stale. Run /update to refresh."
+```
+
+**Key rule: NEVER fetch during coding.** Always use cached knowledge, even if stale. Refreshing happens via `/update` only.
+
+### `/update` with TTL awareness
+
+```
+/update
+
+> Checking 12 sources...
+>   - 8 fresh (within TTL, unchanged) — skipped
+>   - 2 stale (past TTL) → re-fetched → content unchanged → reset timer
+>   - 1 stale (past TTL) → re-fetched → content CHANGED → re-extracted
+>   - 1 error (timeout)
+>
+> Updated 1 knowledge file: architecture/core.md
+> All sources now fresh.
+```
 
 ### .cache/sync-state.yaml
 
@@ -424,18 +587,147 @@ sources:
     content_hash: "abc123"
     last_checked: 2026-03-21
     last_changed: 2026-03-21
-    status: clean                  # clean | dirty | error
+    fetched_at: 2026-03-21
+    ttl_days: 30
+    status: clean
     extracted: true
+    verified: trusted
+    error: null
 
   - type: repo
     repo: "google/nowinandroid"
     last_commit: "f7a2b3c"
     last_checked: 2026-03-21
     last_changed: 2026-03-15
+    fetched_at: 2026-03-21
+    ttl_days: 14
     status: clean
     extracted: true
-    error: null                    # error message if status = error
+    verified: trusted
+    error: null
+
+  - type: doc
+    url: "https://medium.com/@someone/advanced-viewmodel"
+    content_hash: "def456"
+    last_checked: 2026-03-21
+    last_changed: 2026-03-21
+    fetched_at: 2026-03-21
+    ttl_days: 90
+    status: clean
+    extracted: true
+    verified: partial            # some rules verified, some unverified
+    error: null
 ```
+
+## The Skill — How AI Uses Knowledge
+
+### Single skill: `best-practices`
+
+Auto-triggers based on `project.file_patterns` from sources.yaml.
+
+### Trigger rule (CLAUDE.md dispatch entry)
+
+```markdown
+| Writing, modifying, or reviewing code matching project.file_patterns | Invoke buildSkillDocs:best-practices |
+| User says "check docs for X" or "what do the docs say about X" | Invoke buildSkillDocs:best-practices |
+| User says "check my code against best practices" | Invoke buildSkillDocs:best-practices in audit mode |
+```
+
+### Priority-weighted loading (max 3 files per task)
+
+```
+1. Read knowledge/index.md (~200 tokens)
+2. Match current task keywords against index
+3. Find all knowledge files for matched topic
+4. Sort by priority: team > official > reference > community
+5. Load top 3 files maximum (~500 tokens each = ~1500 tokens total)
+6. If a file is from community source, check its verification status
+7. Apply rules to the current task
+```
+
+**Loading priority:**
+1. Always load the `official` or `team` file first (authoritative)
+2. Load `reference` file if keywords strongly match (real code patterns)
+3. Load `community` file only if it's verified and adds unique info
+
+**Budget cap: max 3 files, max ~2400 tokens total per task.**
+
+### Conflict resolution between loaded files
+
+When 2-3 loaded files give conflicting advice on the same point:
+1. Higher priority source wins (`team` > `official` > `reference` > `community`)
+2. The skill applies the winning rule and notes: "Note: [lower source] suggests [alternative], but [higher source] recommends [winning approach]."
+3. If both are the same priority, the more recently fetched source wins.
+
+### Version-aware rule filtering
+
+When the skill loads a knowledge file, it checks rules against `project.versions` from sources.yaml:
+
+- If a rule is tagged with a version requirement (e.g., "requires minSdk 29+") and the project doesn't meet it → **skip the rule silently**
+- If a library version in the knowledge file is older than the project's configured version → **flag as potentially outdated**
+- If no `project.versions` is configured → no filtering, all rules apply
+
+The extractor captures version requirements when present in the source:
+```yaml
+rules:
+  - rule: "Use Foreground Service types in manifest"
+    type: do
+    confidence: high
+    requires:
+      min_sdk: 29          # rule only applies if project minSdk >= 29
+```
+
+### Team priority sources
+
+`team` priority sources can be:
+- A URL to an internal wiki/docs page (if accessible)
+- A public or private GitHub repo (private repos require `gh auth` to be configured)
+- A local file path (e.g., `/path/to/team-conventions.md`) — for rules not hosted anywhere
+
+Adding a team source:
+```
+/add-source --doc "https://internal-wiki.company.com/android-conventions" --priority team
+/add-source --repo "company/android-style-guide" --priority team
+/add-source --doc "file:///path/to/local-conventions.md" --priority team
+```
+
+Team sources are always trusted (no verification). They override all other sources.
+
+### Skill behavior during coding
+
+```
+Normal mode (auto-trigger):
+  - Load relevant knowledge files (max 3)
+  - Apply DO rules silently — AI just writes better code
+  - Flag DON'T violations: "Note: official docs recommend X instead of Y"
+  - Mention pitfalls if current code is at risk
+  - For unverified community rules: "This practice comes from [source], not officially verified"
+  - At end of response (if any stale sources):
+    "📋 buildSkillDocs: 1 source for 'architecture' is older than 30 days. Run /update to refresh."
+```
+
+### Conflict detection mode (`/check` command)
+
+```
+/check
+
+> Scanning current file: ProfileViewModel.kt
+>
+>   ⚠ Line 15: Uses LiveData — recommended: StateFlow
+>     Source: architecture/core.md (official)
+>     WHY: Integrates with coroutines, survives config changes
+>
+>   ⚠ Line 23: Business logic in ViewModel
+>     Source: architecture/core.md (official)
+>     WHY: Move to UseCase — ViewModel should only map UI state
+>
+>   ✅ Line 8: Correct Hilt injection pattern
+>   ✅ Line 30: StateFlow with WhileSubscribed — matches best practice
+>
+> Score: 2/4 practices followed
+```
+
+The `/check` command turns the plugin into a **best-practice linter** — reads current code and compares against knowledge files.
 
 ## Error Handling
 
@@ -443,7 +735,7 @@ sources:
 
 | Failure | Behavior |
 |---|---|
-| Doc URL returns 404 | Mark source status `error`, log warning, skip — continue with other sources |
+| Doc URL returns 404 | Mark source status `error`, log warning, skip |
 | Doc URL times out | Retry once after 5s. If still fails, mark `error`, skip |
 | HTTP 403/429 (rate limit) | Mark `error`, log "rate limited", skip |
 | Repo clone fails (private/missing) | Mark `error`, log warning, skip |
@@ -454,130 +746,95 @@ sources:
 - All commands are **best-effort** — process reachable sources, skip failed ones
 - After completion, report: "Processed N/M sources. K sources failed: [list with reasons]"
 - Failed sources retain their previous knowledge (not deleted)
-- User can retry failed sources with `/generate --topic <name>` or `/update --force --source <url>`
+- User can retry failed sources with `/update --force --source <url>`
 
-### Extraction quality failures
+### On-demand extraction: clarification
 
-- If the doc-extractor agent produces empty or malformed output, treat as error — keep previous knowledge file, report the failure
-- `/generate --dry-run` shows proposed extractions so user can review before committing
+The skill **never fetches or extracts during coding**. Tier 2 extraction happens ONLY via:
+- `/generate` — explicit user command
+- `/update` — when a stale source is re-fetched and content changed
 
-### On-demand extraction failures (during coding)
-
-- If the skill triggers on-demand extraction and it fails (network error, timeout), the skill reports: "Could not fetch latest docs for [topic]. Using cached version / No cached version available."
-- The coding task is not blocked — skill proceeds with whatever knowledge is available
-
-## The Skill — How AI Uses Knowledge
-
-### Single skill: `best-practices`
-
-Auto-triggers via CLAUDE.md dispatch when writing or modifying code.
-
-### Trigger rule (CLAUDE.md dispatch entry)
-
-```markdown
-| Writing, modifying, or reviewing code in *.kt, *.java, *.xml, *.gradle* files | Invoke buildSkillDocs:best-practices |
-| User says "check docs for X" or "what do the docs say about X" | Invoke buildSkillDocs:best-practices |
-```
-
-The first rule auto-triggers — no user action needed. The second allows manual lookup.
-
-### Skill behavior
-
-```
-1. Read knowledge/index.md (~200 tokens, keyword index)
-2. Match current task keywords against index
-3. Check: is there a cached knowledge file for the matched topic?
-   |
-   +-- YES (extracted = true) --> Load cached file (~300-500 tokens). Apply rules.
-   |
-   +-- NO (extracted = false) --> Fetch source on-demand, extract, cache.
-                                  Apply freshly extracted rules.
-                                  (First time only — cached for next time)
-```
-
-### Token cost per coding task
-
-| Scenario | Cost |
-|---|---|
-| Topic already cached | ~500-1500 tokens (index + cached file) |
-| Topic not yet cached (first time) | ~12K-35K tokens (index + fetch + extract + cache) |
-| Subsequent tasks on same topic | ~500-1500 tokens (uses cache) |
+If the skill triggers and no cached knowledge file exists for a matched topic, it notes: "No knowledge cached for [topic]. Run `/generate --topic [topic]` to extract." The coding task is not blocked.
 
 ## Distribution
 
-### Recommended: commit knowledge files to the plugin repo
+### Publishing to GitHub
 
-Two workflows:
+```bash
+# Push to GitHub as a public repo
+git remote add origin https://github.com/your-username/buildSkillDocs.git
+git push -u origin main
 
-**Option A — Pre-built (recommended for teams):**
+# Anyone can install:
+claude plugin add your-username/buildSkillDocs
+```
+
+### Community contribution
+
+- Anyone can submit a PR to add a new starter profile (e.g., "Flutter", "Rust", "Go")
+- Each profile is a directory under `profiles/` with `sources.yaml` + `knowledge/`
+- Maintainer reviews and merges — quality controlled
+- Pre-built knowledge files are included so users don't need to `/generate`
+
+### Distribution workflows
+
+**For teams (Option A — pre-built):**
 ```
 You:
-  /add-source --doc <url>
-  /add-source --repo <repo>
-  /generate                    # Force extract everything upfront
-  git commit + push            # Commit index + knowledge files
+  /setup → pick Android
+  /add-source --doc <extra url>
+  /generate
+  git commit + push
 
 Team:
-  claude plugin add buildSkillDocs
+  claude plugin add your-username/buildSkillDocs
+  /setup → pick Android
   # Works immediately — all knowledge pre-cached
 ```
 
-**Option B — Lazy (for individual use):**
+**For individuals (Option B — lazy):**
 ```
 You:
-  /add-source --doc <url>
-  /add-source --repo <repo>
-  # Done — just the index is built
-  # Knowledge extracted on-demand as you code
+  claude plugin add your-username/buildSkillDocs
+  /setup → pick Android (or Custom)
+  # Pre-built knowledge from profile works immediately
+  # Additional sources extracted on-demand as you code
 ```
 
 ## CLI Commands Summary
 
 | Command | What it does | Token cost |
 |---|---|---|
+| `/setup` | First-install profile picker — sets up sources + knowledge | Zero (copies files) |
 | `/add-source` | Register source, scan for keywords, discover sub-pages | Very low (~1K) |
-| `/list-sources` | Show all sources with status and extraction state | Zero |
+| `/list-sources` | Show all sources with status, extraction, and freshness | Zero |
 | `/generate` | Force Tier 2 extraction for un-extracted sources | Medium-High |
 | `/generate --all` | Force re-extract ALL sources | High |
 | `/generate --topic <name>` | Force extract for one topic | Low-Medium |
 | `/generate --dry-run` | Show what would be extracted | Zero |
-| `/update` | Check for source changes, invalidate stale caches | Very low |
+| `/update` | Check for changes, refresh stale sources (past TTL) | Low (fetch + hash compare) |
 | `/update --force` | Invalidate all caches | Zero |
 | `/update --force --source <url>` | Invalidate one source's cache | Zero |
-| `/update --dry-run` | Show what would be invalidated | Zero |
-| `/diff` | Show what changed since last sync | Zero |
-| `/remove-source` | Remove source, its index entry, and cached knowledge | Zero |
-
-## Token Cost Summary
-
-| Action | Token cost |
-|---|---|
-| `/add-source` (index only) | Very low — ~500-1K per source |
-| `/generate` (force extract) | ~12K per doc page, ~35K per repo |
-| `/update` (nothing changed) | Zero — only hash/SHA checks |
-| `/update` (sources changed) | Zero — just invalidates cache |
-| `/diff` | Zero |
-| Daily coding (topic cached) | ~500-1500 tokens |
-| Daily coding (topic not cached, first time) | ~12-35K tokens (one-time per topic) |
-
-### Cost comparison: old approach vs lazy approach
-
-| Scenario: 50 doc pages + 10 repos | Upfront extraction | Lazy extraction |
-|---|---|---|
-| Initial setup cost | ~950K tokens | ~50K tokens |
-| First coding task (1 topic) | 0 (already done) | ~12-35K (extracts that topic) |
-| After 5 different topics used | 0 | ~100K total (only what you needed) |
-| Topics never used | Wasted ~800K tokens | 0 tokens (never extracted) |
+| `/update --dry-run` | Show what would be refreshed | Zero |
+| `/diff` | Show cached status of all sources | Zero |
+| `/remove-source` | Remove source, its index entry, and knowledge file | Zero |
+| `/check` | Audit current code against best practices (linter mode) | Low (~1500 tokens) |
 
 ## Success Criteria
 
 1. AI produces code following latest official best practices without manual doc links
 2. Adding new sources is trivial and cheap (one command, just indexes keywords)
 3. Full extraction cost is deferred until actually needed
-4. Updates only invalidate stale caches — no wasted re-extraction
-5. Team onboarding is one command (plugin install with pre-built knowledge)
-6. Knowledge files are small (~800 tokens max), focused, and grouped by concept
-7. System works for any technology, not just Android
-8. Sub-pages and repo directories are discoverable — user picks what to include
-9. Partial failures are handled gracefully — never lose existing knowledge
-10. Conflicting sources are resolved by priority, not randomly
+4. Knowledge is per-source — adding/removing one source doesn't affect others
+5. Community sources are verified against official docs before being trusted
+6. Stale knowledge is flagged but never blocks coding
+7. TTL is smart — different source types have appropriate refresh intervals
+8. Extracted rules include "why" annotations and before/after examples
+9. AI can explain why it's following a particular practice
+10. `/check` command acts as a best-practice linter for existing code
+11. `team` priority allows company-specific rules that override everything
+12. Version-aware — rules can be filtered by project's SDK/language version
+13. Works for any technology — configurable file triggers, starter profiles
+14. Team onboarding is two commands (install plugin + /setup)
+15. Community can contribute new profiles via PR
+16. Partial failures are handled gracefully — never lose existing knowledge
