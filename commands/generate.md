@@ -3,10 +3,13 @@ name: generate
 description: Force full extraction (Tier 2) for sources. Extracts best-practice rules and creates per-source knowledge files. Spawns source-verifier for community sources. Use before committing for team distribution.
 arguments:
   - name: --all
-    description: Re-extract ALL sources, ignoring cache
+    description: Re-extract ALL sources, ignoring hash check
     required: false
   - name: --topic
     description: Extract only sources for a specific topic
+    required: false
+  - name: --source
+    description: Force re-extract one specific source URL or repo
     required: false
   - name: --dry-run
     description: Show what would be extracted without doing it
@@ -20,9 +23,11 @@ You are running the `/generate` command for the buildSkillDocs plugin.
 1. Read `sources.yaml` and `.cache/sync-state.yaml`
 
 2. Determine which sources to extract:
-   - No flags: sources where `extracted: false`
-   - `--all`: all sources regardless of extraction state
-   - `--topic <name>`: sources matching that topic where `extracted: false` (or all if combined with `--all`)
+   - No flags: sources where `extracted: false` or content changed
+   - `--all`: all sources, ignoring hash check — always re-extract
+   - `--topic <name>`: sources matching that topic (respects hash check unless combined with `--all`)
+   - `--source <url>`: force re-extract this one specific source, ignoring hash check
+   - `--source` + `--topic` can be combined but `--source` takes priority
 
 3. If `--dry-run`: list sources that would be extracted and stop:
    ```
