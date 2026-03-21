@@ -269,8 +269,8 @@ sources:
 
 | Priority | Meaning | Default TTL | Trusted? | Example |
 |---|---|---|---|---|
-| `team` (highest) | Your company's internal rules | 90 days | Yes | internal wiki, team conventions |
-| `official` | Official documentation from the technology owner | 30 days | Yes | developer.android.com, kotlinlang.org |
+| `official` (highest) | Official documentation from the technology owner | 30 days | Yes | developer.android.com, kotlinlang.org |
+| `team` | Your company's internal rules — can supplement or override for team-specific reasons | 90 days | Yes | internal wiki, team conventions |
 | `reference` | Official reference/sample repos | 14 days | Yes | google/nowinandroid |
 | `community` (lowest) | Blogs, Medium, third-party repos | 90 days | **No — requires verification** | medium.com articles, personal blogs |
 
@@ -639,23 +639,23 @@ Auto-triggers based on `project.file_patterns` from sources.yaml.
 1. Read knowledge/index.md (~200 tokens)
 2. Match current task keywords against index
 3. Find all knowledge files for matched topic
-4. Sort by priority: team > official > reference > community
+4. Sort by priority: official > team > reference > community
 5. Load top 3 files maximum (~500 tokens each = ~1500 tokens total)
 6. If a file is from community source, check its verification status
 7. Apply rules to the current task
 ```
 
 **Loading priority:**
-1. Always load the `official` or `team` file first (authoritative)
-2. Load `reference` file if keywords strongly match (real code patterns)
-3. Load `community` file only if it's verified and adds unique info
+1. Always load the `official` file first (highest authority)
+2. Load `team` file if exists (company-specific supplements/overrides)
+3. Load `reference` or verified `community` file if keywords strongly match
 
 **Budget cap: max 3 files, max ~2400 tokens total per task.**
 
 ### Conflict resolution between loaded files
 
 When 2-3 loaded files give conflicting advice on the same point:
-1. Higher priority source wins (`team` > `official` > `reference` > `community`)
+1. Higher priority source wins (`official` > `team` > `reference` > `community`)
 2. The skill applies the winning rule and notes: "Note: [lower source] suggests [alternative], but [higher source] recommends [winning approach]."
 3. If both are the same priority, the more recently fetched source wins.
 
@@ -691,7 +691,7 @@ Adding a team source:
 /add-source --doc "file:///path/to/local-conventions.md" --priority team
 ```
 
-Team sources are always trusted (no verification). They override all other sources.
+Team sources are always trusted (no verification). They can supplement official docs or override reference/community sources for team-specific reasons. Official docs remain the highest authority.
 
 ### Skill behavior during coding
 
