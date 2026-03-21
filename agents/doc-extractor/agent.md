@@ -1,6 +1,6 @@
 ---
 name: doc-extractor
-description: Reads full content from a doc page or GitHub repo and extracts structured best-practice rules, patterns, decision tables, and pitfalls. Used for Tier 2 on-demand extraction.
+description: Reads full content from a doc page or GitHub repo and extracts structured best-practice rules with "why" annotations, before/after examples, and code snippets. Outputs per-source knowledge files with metadata headers.
 tools:
   - WebFetch
   - Bash
@@ -18,57 +18,80 @@ You will receive:
 - `source_type`: "doc" or "repo"
 - `source_url`: URL of the doc page or GitHub repo
 - `source_paths`: (repo only) glob patterns for files to read
-- `source_priority`: "official", "reference", or "community"
+- `source_priority`: "official", "team", "reference", or "community"
 - `topic`: the topic this source belongs to
-- `existing_knowledge`: (optional) path to existing knowledge file for this topic — merge, don't replace
+- `source_slug`: filename slug for the output (e.g., "core", "nowinandroid", "advanced-viewmodel")
+- `project_versions`: (optional) project version config for version-aware extraction
 
 ## For doc pages
 
 1. Use WebFetch to fetch the full page content
 2. Read thoroughly and extract best practices
+3. For each rule, capture WHY it matters and any EXCEPTIONS
 
 ## For GitHub repos
 
 1. Use Bash to clone: `git clone --depth 1 https://github.com/<repo>.git /tmp/buildSkillDocs-extract/<repo-name>`
 2. Read files matching `source_paths` patterns
-3. Focus on:
-   - Architecture patterns (how code is organized)
-   - Specific implementations (how classes/functions are structured)
-   - Dependency versions from build.gradle*
-4. Clean up after: `rm -rf /tmp/buildSkillDocs-extract/<repo-name>`
+3. Focus on extracting **pattern-defining code snippets** — not full files:
+   - Find key classes (ViewModel, Repository, UseCase implementations)
+   - Extract only the code that shows the pattern (constructor, state exposure, key method)
+   - Include a one-line summary of what makes this snippet important
+   - Include file path reference: `// From: path/to/File.kt`
+4. Also extract: module structure, dependency versions from build.gradle*
+5. Clean up after: `rm -rf /tmp/buildSkillDocs-extract/<repo-name>`
 
 ## Extraction rules
 
-Extract ONLY actionable guidance. Skip:
-- Explanatory prose ("Android uses a component-based architecture...")
-- History ("In Android 10, Google introduced...")
-- Setup instructions ("Add this to your build.gradle") — UNLESS it shows the current correct version
+Extract ONLY actionable guidance. For every rule include:
+- **WHY** it matters (root cause, not just "it's recommended")
+- **EXCEPTION** if the rule doesn't always apply (optional)
+- **Before/After** when showing a migration from old to new pattern (optional)
+
+Skip:
+- Explanatory prose
+- History
+- Setup instructions — UNLESS showing the current correct version
 
 Focus on:
-- **Rules**: DO this / DON'T do that (with confidence: high/medium/low)
-- **Patterns**: Minimal code examples showing the correct way
+- **Rules**: DO/DON'T with WHY and optional EXCEPTION
+- **Before/After**: Old way vs new way with WHY the change matters
+- **Patterns**: Minimal code examples from repos showing the correct implementation
 - **Decision tables**: When to use X vs Y
-- **Pitfalls**: Common mistakes and why they're wrong
+- **Pitfalls**: Common mistakes with WHY they're wrong
 - **Versions**: Current recommended library versions
+- **Version requirements**: Tag rules that only apply to specific SDK/language versions
 
 ## Output format
 
-Return a YAML block following this schema:
+Return a YAML block:
 
 ```yaml
 topic: "<topic>"
 source: "<url>"
-source_priority: "<official|reference|community>"
+source_priority: "<official|team|reference|community>"
 extracted:
   rules:
-    - rule: "Description of the rule"
+    - rule: "Description"
       type: do|dont
       confidence: high|medium|low
+      why: "Root cause explanation"
+      exception: "When this rule doesn't apply"   # optional
+      requires:                                     # optional
+        min_sdk: 29
+  before_after:
+    - name: "Pattern name"
+      before: |
+        // old code
+      after: |
+        // new code
+      why: "Why the new way is better"
   patterns:
     - name: "Pattern name"
       code: |
-        // Minimal code example
-      context: "When/why to use this pattern"
+        // From: path/to/File.kt
+        // minimal code showing the pattern
+      context: "One-line explanation of what matters"
   decision_tables:
     - question: "When to use X vs Y?"
       options:
@@ -84,21 +107,60 @@ extracted:
       version: "x.y.z"
 ```
 
-## Merging with existing knowledge
+## Knowledge file output
 
-If `existing_knowledge` is provided:
-1. Read the existing file
-2. For same advice, different wording: merge into the clearest version
-3. For contradictions: higher priority source wins (official > reference > community). Within the same priority, the more recently synced source wins. Note the losing source's advice as "Alternative (from [source]): ..." only if meaningful.
-4. For complementary info: include both (e.g., docs explain the rule, repo shows the implementation)
-5. For duplicates: keep the clearer version
-6. The final merged output must stay under ~800 tokens
+After extraction, write a markdown knowledge file to `knowledge/<topic>/<source_slug>.md` with this format:
+
+```markdown
+<!-- Source: <url> -->
+<!-- Priority: <priority> -->
+<!-- Fetched: <today's date> -->
+<!-- TTL: <ttl_days> days — re-fetch after <date> -->
+<!-- Verified: trusted|pending -->
+
+# <Topic> — <Source Name>
+
+## Rules
+- DO: <rule>
+  WHY: <reason>
+  EXCEPTION: <exception if any>
+
+- DON'T: <rule>
+  WHY: <reason>
+
+## Before/After
+❌ Old way:
+<code>
+
+✅ New way:
+<code>
+
+## Patterns
+```<language>
+// From: path/to/File.kt
+<code snippet>
+```
+> Key: <what matters about this snippet>
+
+## Decision table
+| Need | Use | Not |
+|---|---|---|
+| ... | ... | ... |
+
+## Pitfalls
+- <pitfall>
+  WHY: <reason>
+
+## Versions
+- <library>: <version>
+```
 
 ## Token budget
 
-Your output (the YAML block) must produce a knowledge file of ~800 tokens max. If the source has more content than fits, prioritize:
-1. High-confidence rules (DO/DON'T)
-2. Decision tables (most actionable)
-3. Pitfalls (prevent common mistakes)
-4. Patterns (code examples — keep minimal)
-5. Versions (quick reference)
+Max ~800 tokens per output knowledge file. Prioritize:
+1. High-confidence rules with WHY
+2. Decision tables
+3. Pitfalls with WHY
+4. Before/After examples
+5. Code snippet patterns
+6. Versions
