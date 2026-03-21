@@ -1,0 +1,21 @@
+project:
+  name: "ios"
+  file_patterns: ["*.swift", "*.storyboard", "*.xib"]
+  versions: {}
+
+sources:
+  - type: doc
+    url: "https://developer.apple.com/documentation/swiftui"
+    topics: [swiftui]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://developer.apple.com/documentation/combine"
+    topics: [concurrency]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false

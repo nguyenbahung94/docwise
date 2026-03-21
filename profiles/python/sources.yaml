@@ -1,0 +1,29 @@
+project:
+  name: "python"
+  file_patterns: ["*.py", "*.yaml", "*.toml"]
+  versions: {}
+
+sources:
+  - type: doc
+    url: "https://docs.python.org/3/library/typing.html"
+    topics: [typing]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://fastapi.tiangolo.com/tutorial/"
+    topics: [fastapi]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://docs.djangoproject.com/en/5.0/"
+    topics: [django]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false

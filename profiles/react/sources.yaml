@@ -1,0 +1,29 @@
+project:
+  name: "react"
+  file_patterns: ["*.tsx", "*.ts", "*.jsx", "*.js", "*.css"]
+  versions: {}
+
+sources:
+  - type: doc
+    url: "https://react.dev/learn"
+    topics: [react-fundamentals]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://react.dev/reference/react/hooks"
+    topics: [hooks]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://nextjs.org/docs/app"
+    topics: [nextjs]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false

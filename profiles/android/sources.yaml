@@ -1,0 +1,62 @@
+project:
+  name: "android"
+  file_patterns: ["*.kt", "*.java", "*.xml", "*.gradle*"]
+  versions: {}
+
+sources:
+  - type: doc
+    url: "https://developer.android.com/topic/architecture"
+    topics: [architecture]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://developer.android.com/kotlin/coroutines"
+    topics: [concurrency]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://developer.android.com/topic/libraries/architecture/workmanager"
+    topics: [background-work]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://developer.android.com/training/data-storage/room"
+    topics: [data-persistence]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://developer.android.com/guide/navigation"
+    topics: [navigation]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: doc
+    url: "https://dagger.dev/hilt/quick-start"
+    topics: [dependency-injection]
+    priority: official
+    ttl_days: 30
+    last_synced: null
+    extracted: false
+
+  - type: repo
+    repo: "google/nowinandroid"
+    topics: [architecture, compose]
+    paths: ["app/src/main", "core/*/src/main", "*.md"]
+    priority: reference
+    ttl_days: 14
+    last_synced: null
+    extracted: false
