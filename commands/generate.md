@@ -40,15 +40,25 @@ You are running the `/generate` command for the buildSkillDocs plugin.
       - For doc sources: derive a slug from the URL (e.g., `developer.android.com/topic/architecture` → `android-architecture`, `medium.com/@someone/my-article` → `my-article`)
       - For repo sources: use the repo name part (e.g., `google/nowinandroid` → `nowinandroid`)
 
-   b. Ensure the topic directory exists: `knowledge/<topic>/`
+   b. **Check if content changed before extracting (save tokens):**
+      - Fetch the page / check repo HEAD commit
+      - Compute content hash (for docs) or get latest SHA (for repos)
+      - Compare with stored hash/SHA in `.cache/sync-state.yaml`
+      - **If unchanged AND knowledge file already exists:** skip extraction, just update `fetched_at`. Log "[unchanged] <source> — skipped extraction"
+      - **If changed OR no knowledge file exists:** proceed with extraction
+      - Note: `--all` flag bypasses this check and always extracts
+
+   c. Ensure the topic directory exists: `knowledge/<topic>/`
       Create it if it doesn't exist.
 
-   c. Spawn the `doc-extractor` agent with:
+   d. Spawn the `doc-extractor` agent with:
       - source_type, source_url, source_paths (if repo), source_priority, topic
       - source_slug: the derived slug
       - output_path: `knowledge/<topic>/<source-slug>.md`
 
-   d. The agent writes the knowledge file directly to `knowledge/<topic>/<source-slug>.md`
+   e. The agent writes the knowledge file directly to `knowledge/<topic>/<source-slug>.md`
+
+   f. Update `.cache/sync-state.yaml`: store new `content_hash` or `last_commit`
 
 5. After each community source is extracted, spawn the `source-verifier` agent with:
    - community_knowledge_file: `knowledge/<topic>/<source-slug>.md`
@@ -69,12 +79,13 @@ You are running the `/generate` command for the buildSkillDocs plugin.
 
 8. Report results:
    ```
-   Generated knowledge for N/M sources:
-     - architecture/android-architecture.md (12 rules, 4 patterns)
-     - architecture/nowinandroid.md (8 rules, 2 decision tables)
-     - concurrency/coroutines-guide.md (6 rules) [verified: partial]
+   Generated knowledge for N sources:
+     - [extracted] architecture/android-architecture.md (12 rules, 4 patterns)
+     - [extracted] architecture/nowinandroid.md (8 rules, 2 code snippets)
+     - [extracted] concurrency/coroutines-guide.md (6 rules) [verified: partial]
+     - [unchanged] navigation/android-navigation.md — content same, skipped
 
-   Failed: K sources [list if any]
+   Extracted: X | Unchanged (skipped): Y | Failed: Z
 
    Knowledge files ready. Commit and push to share with your team.
    ```
