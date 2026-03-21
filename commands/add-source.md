@@ -3,7 +3,7 @@ name: add-source
 description: Register a documentation page or GitHub repo as a knowledge source. Scans for keywords (Tier 1), discovers sub-pages/directories, and lets user pick what to include.
 arguments:
   - name: --doc
-    description: URL of a documentation page
+    description: URL of a documentation page (http/https) or local file path (file://)
     required: false
   - name: --repo
     description: GitHub repo in "owner/name" format
@@ -12,7 +12,7 @@ arguments:
     description: Topic to assign this source to (e.g., "architecture", "concurrency")
     required: false
   - name: --priority
-    description: Source priority — official, reference, or community
+    description: Source priority — official, team, reference, or community
     required: false
 ---
 
@@ -21,15 +21,34 @@ You are running the `/add-source` command for the buildSkillDocs plugin.
 ## Validation
 
 1. Exactly one of `--doc` or `--repo` must be provided. If neither or both, show usage and stop.
-2. If `--doc` is provided, it must be a valid URL starting with `http://` or `https://`
+2. If `--doc` is provided:
+   - It must be a valid URL starting with `http://`, `https://`, or `file://`
+   - `file://` URLs are treated as local files (team priority by default)
 3. If `--repo` is provided, it must be in `owner/name` format
 4. Check `sources.yaml` for duplicates. If the source already exists, inform user and stop.
 
 ## Default priority
 
-- `--doc` defaults to `official`
+- `--doc` with `http://` or `https://` defaults to `official`
+- `--doc` with `file://` defaults to `team`
 - `--repo` defaults to `reference`
 - User can override with `--priority`
+
+## TTL defaults by priority
+
+| Priority | ttl_days |
+|----------|----------|
+| official | 30 |
+| team | 90 |
+| reference | 14 |
+| community | 90 |
+
+## Topic normalization
+
+Convert the topic to kebab-case lowercase. Examples:
+- "Android Architecture" → "android-architecture"
+- "Concurrency" → "concurrency"
+- "ViewModels" → "viewmodels"
 
 ## Process
 
@@ -103,7 +122,9 @@ To force extraction now: /generate --topic [topic]
 - type: doc
   url: "<url>"
   topics: [<topic>]
-  priority: <official|reference|community>
+  priority: <official|team|reference|community>
+  ttl_days: <30|90|14|90>
+  verified: <false if community, omit otherwise>
   last_synced: null
   extracted: false
 ```
@@ -114,14 +135,18 @@ To force extraction now: /generate --topic [topic]
   repo: "<owner/name>"
   topics: [<topic>]
   paths: [<selected paths>]
-  priority: <official|reference|community>
+  priority: <official|team|reference|community>
+  ttl_days: <30|90|14|90>
+  verified: <false if community, omit otherwise>
   last_synced: null
   extracted: false
 ```
 
+Note: `verified: false` is only added for `community` priority sources. Official, team, and reference sources omit the `verified` field.
+
 ### knowledge/index.md row:
 ```
-| <keywords csv> | <topic> | <url or repo> | no |
+| <keywords csv> | <topic> | <url or repo> | <priority> | no | — |
 ```
 
 ### .cache/sync-state.yaml entry (doc):
@@ -129,6 +154,9 @@ To force extraction now: /generate --topic [topic]
 - type: doc
   url: "<url>"
   content_hash: "<hash of fetched content>"
+  fetched_at: "<today>"
+  ttl_days: <ttl_days>
+  verified: <false if community, omit otherwise>
   last_checked: "<today>"
   last_changed: "<today>"
   status: clean
@@ -141,6 +169,9 @@ To force extraction now: /generate --topic [topic]
 - type: repo
   repo: "<owner/name>"
   last_commit: "<HEAD commit SHA>"
+  fetched_at: "<today>"
+  ttl_days: <ttl_days>
+  verified: <false if community, omit otherwise>
   last_checked: "<today>"
   last_changed: "<today>"
   status: clean
