@@ -1,6 +1,6 @@
 ---
 name: generate
-description: Force full extraction (Tier 2) for sources. Extracts best-practice rules and creates knowledge files. Use before committing for team distribution.
+description: Force full extraction (Tier 2) for sources. Extracts best-practice rules and creates per-source knowledge files. Spawns source-verifier for community sources. Use before committing for team distribution.
 arguments:
   - name: --all
     description: Re-extract ALL sources, ignoring cache
@@ -34,28 +34,45 @@ You are running the `/generate` command for the buildSkillDocs plugin.
    Run /generate (without --dry-run) to proceed.
    ```
 
-4. For each source to extract, spawn the `doc-extractor` agent with:
-   - source_type, source_url, source_paths (if repo), source_priority, topic
-   - existing_knowledge: path to existing knowledge file for this topic (if one exists from another source)
+4. For each source to extract:
 
-5. After extraction, the agent returns structured YAML. Convert it to a knowledge markdown file:
-   - Write to `knowledge/<topic>.md`
-   - Include metadata header: `<!-- Generated: <date> | Sources: N docs, N repos | Max token budget: 800 -->`
-   - Format rules, patterns, decision tables, pitfalls, versions as markdown sections
+   a. Determine the `source_slug` for the output file:
+      - For doc sources: derive a slug from the URL (e.g., `developer.android.com/topic/architecture` → `android-architecture`, `medium.com/@someone/my-article` → `my-article`)
+      - For repo sources: use the repo name part (e.g., `google/nowinandroid` → `nowinandroid`)
 
-6. If the knowledge file exceeds ~800 tokens, split by sub-topic:
-   - `knowledge/<topic>-<subtopic>.md`
-   - Update `knowledge/index.md` to reflect the split
+   b. Ensure the topic directory exists: `knowledge/<topic>/`
+      Create it if it doesn't exist.
 
-7. Update `.cache/sync-state.yaml`: set `extracted: true` for processed sources
+   c. Spawn the `doc-extractor` agent with:
+      - source_type, source_url, source_paths (if repo), source_priority, topic
+      - source_slug: the derived slug
+      - output_path: `knowledge/<topic>/<source-slug>.md`
 
-8. Update `knowledge/index.md`: set Extracted column to `yes` for processed sources
+   d. The agent writes the knowledge file directly to `knowledge/<topic>/<source-slug>.md`
 
-9. Report results:
+5. After each community source is extracted, spawn the `source-verifier` agent with:
+   - community_knowledge_file: `knowledge/<topic>/<source-slug>.md`
+   - topic: the topic name
+   - knowledge_dir: `knowledge/`
+
+   Update the knowledge file's `<!-- Verified: ... -->` metadata header based on verifier results:
+   - `overall_status: verified` → `<!-- Verified: trusted -->`
+   - `overall_status: partial` → `<!-- Verified: partial -->`
+   - `overall_status: rejected` → `<!-- Verified: rejected -->`
+
+6. Update `.cache/sync-state.yaml` for each processed source:
+   - Set `extracted: true`
+   - Set `fetched_at: <today>`
+   - Set `verified: <overall_status>` (for community sources)
+
+7. Update `knowledge/index.md`: set Fresh column to `yes` for processed sources
+
+8. Report results:
    ```
    Generated knowledge for N/M sources:
-     - architecture.md (3 sources → 12 rules, 4 patterns)
-     - concurrency.md (2 sources → 8 rules, 2 decision tables)
+     - architecture/android-architecture.md (12 rules, 4 patterns)
+     - architecture/nowinandroid.md (8 rules, 2 decision tables)
+     - concurrency/coroutines-guide.md (6 rules) [verified: partial]
 
    Failed: K sources [list if any]
 
@@ -66,5 +83,6 @@ You are running the `/generate` command for the buildSkillDocs plugin.
 
 - If a source fetch fails (404, timeout): log warning, skip, continue with others
 - HTTP 403/429 (rate limited): log "rate limited — try again later", skip
-- If extraction produces empty or malformed output: keep previous knowledge file, report failure
+- If extraction produces empty or malformed output: keep previous knowledge file if one exists, report failure
+- If source-verifier fails for a community source: keep `Verified: pending` in the knowledge file header, log warning
 - Report partial results at the end
