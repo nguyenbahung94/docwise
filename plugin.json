@@ -1,20 +1,23 @@
 {
   "name": "buildSkillDocs",
-  "version": "0.1.0",
-  "description": "Indexes official docs and GitHub repos, extracts best-practice knowledge on-demand to guide AI coding.",
+  "version": "0.2.0",
+  "description": "Indexes official docs and GitHub repos, extracts best-practice knowledge on-demand to guide AI coding. Supports any tech stack with starter profiles.",
   "commands": [
+    "commands/setup.md",
     "commands/add-source.md",
     "commands/list-sources.md",
     "commands/generate.md",
     "commands/update.md",
     "commands/diff.md",
-    "commands/remove-source.md"
+    "commands/remove-source.md",
+    "commands/check.md"
   ],
   "skills": [
     "skills/best-practices/skill.md"
   ],
   "agents": [
     "agents/doc-extractor/agent.md",
-    "agents/keyword-scanner/agent.md"
+    "agents/keyword-scanner/agent.md",
+    "agents/source-verifier/agent.md"
   ]
 }
