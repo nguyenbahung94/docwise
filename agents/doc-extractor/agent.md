@@ -105,7 +105,33 @@ extracted:
   versions:
     - library: "library-name"
       version: "x.y.z"
+  concepts:
+    - name: "ConceptName"
+      relates_to:
+        - concept: "OtherConcept"
+          relation: "describes the relationship"
 ```
+
+## Concept extraction (for knowledge graph)
+
+While extracting rules and patterns, also identify key concepts and their relationships:
+
+- A "concept" is a specific technology, pattern, class, or API (e.g., "ViewModel", "StateFlow", "Room", "UseCase")
+- A "relation" describes how two concepts connect (e.g., "exposes state via", "delegates logic to", "replaces", "requires", "persists with")
+- Extract 3-10 concepts per source — focus on the main concepts the source teaches
+- Relations should be directional and specific — not generic like "relates to"
+- Only extract relationships that the source actually describes or demonstrates
+
+Examples of good relations:
+- ViewModel → StateFlow: "exposes state via"
+- ViewModel → UseCase: "delegates logic to"
+- Repository → Room: "persists with"
+- StateFlow → LiveData: "replaces"
+- Room → Migration: "requires for schema changes"
+
+Examples of bad relations (too generic):
+- ViewModel → Android: "part of"
+- Room → Database: "is a"
 
 ## Knowledge file output
 
@@ -153,6 +179,10 @@ After extraction, write a markdown knowledge file to `knowledge/<topic>/<source_
 
 ## Versions
 - <library>: <version>
+
+## Concepts (for graph)
+- ViewModel → StateFlow (exposes state via)
+- ViewModel → UseCase (delegates logic to)
 ```
 
 ## Token budget
