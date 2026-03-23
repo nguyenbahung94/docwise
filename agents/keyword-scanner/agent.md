@@ -29,9 +29,22 @@ You will receive:
    - All h1, h2, h3 headings
    - Class names, function names, and API names from code blocks
    - Key terms that appear in bold or are repeated frequently
-3. Also look for sidebar/navigation links to child pages. Extract:
-   - Link text and URL for each child page
-   - These are "sub-pages" — return them separately
+3. Look for sidebar/navigation links to related pages. These are typically:
+   - Left sidebar navigation (common on developer.android.com, kotlinlang.org, react.dev)
+   - Table of contents with links to sub-sections on other pages
+   - "Related topics" or "Next steps" sections
+
+   For each link found in the sidebar/navigation:
+   - Extract the link text (title) and full URL
+   - Only include links that go to pages on the SAME domain (skip external links)
+   - Skip anchor links that stay on the current page (e.g., `#section`)
+   - These are "sub-pages" — return them separately so the user can pick which to include
+
+   Example: on developer.android.com/develop/ui/compose/state, the left sidebar has:
+   - "Where to hoist state" → https://developer.android.com/develop/ui/compose/state-hoisting
+   - "Save UI state" → https://developer.android.com/develop/ui/compose/state-saving
+   - "Lifecycle" → https://developer.android.com/develop/ui/compose/lifecycle
+   - etc.
 
 ## For GitHub repos
 
