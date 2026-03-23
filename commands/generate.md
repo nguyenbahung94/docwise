@@ -35,7 +35,7 @@ You are running the `/generate` command for the docwise plugin.
      1. [doc] developer.android.com/topic/architecture → topic: architecture
      2. [repo] google/nowinandroid → topic: architecture
 
-   Estimated token cost: ~47K tokens
+   Uses Python script — zero LLM tokens.
    Run /generate (without --dry-run) to proceed.
    ```
 
@@ -57,12 +57,16 @@ You are running the `/generate` command for the docwise plugin.
    c. Ensure the topic directory exists: `knowledge/<topic>/`
       Create it if it doesn't exist.
 
-   d. Spawn the `doc-extractor` agent with:
-      - source_type, source_url, source_paths (if repo), source_priority, topic
-      - source_slug: the derived slug
-      - output_path: `knowledge/<topic>/<source-slug>.md`
+   d. Run the doc extractor Python script (zero tokens, no LLM agent):
+      ```bash
+      python3 ${CLAUDE_PLUGIN_ROOT}/tools/doc_extractor.py --url "<url>" --topic "<topic>" --priority "<priority>" --output "knowledge/<topic>/<source-slug>.md"
+      ```
+      For batch extraction of multiple URLs into one knowledge file:
+      ```bash
+      python3 ${CLAUDE_PLUGIN_ROOT}/tools/doc_extractor.py --urls "<url1>,<url2>" --topic "<topic>" --priority "<priority>" --output "knowledge/<topic>/<source-slug>.md"
+      ```
 
-   e. The agent writes the knowledge file directly to `knowledge/<topic>/<source-slug>.md`
+   e. The script writes the knowledge file directly to `knowledge/<topic>/<source-slug>.md`
 
    f. Update `.cache/sync-state.yaml`: store new `content_hash` or `last_commit`
 
