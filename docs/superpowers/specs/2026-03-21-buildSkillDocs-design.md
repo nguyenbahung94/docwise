@@ -99,7 +99,8 @@ buildSkillDocs/
     sync-state.yaml               # Content hashes, commit SHAs, TTL dates
 
   knowledge/                      # Per-source knowledge files, grouped by topic
-    index.md                      # Keyword-to-source mapping
+    graph.yaml                    # Concept graph — rebuilt on every /generate
+    index.md                      # Keyword-to-source mapping (fallback)
     architecture/
       core.md                     # From official docs
       nowinandroid.md             # From reference repo
@@ -478,7 +479,22 @@ extracted:
   versions:
     - library: "lifecycle-viewmodel-compose"
       version: "2.8.x"
+  concepts:                              # NEW — graph data
+    - name: "ViewModel"
+      relates_to:
+        - concept: "StateFlow"
+          relation: "exposes state via"
+        - concept: "UseCase"
+          relation: "delegates logic to"
+        - concept: "Hilt"
+          relation: "injected by"
+    - name: "StateFlow"
+      relates_to:
+        - concept: "LiveData"
+          relation: "replaces"
 ```
+
+The `concepts` section is used by `/generate` to build `knowledge/graph.yaml`. Each concept lists its relationships to other concepts found in the source.
 
 ## Source Verification
 
@@ -633,19 +649,93 @@ Auto-triggers based on `project.file_patterns` from sources.yaml.
 | User says "check my code against best practices" | Invoke buildSkillDocs:best-practices in audit mode |
 ```
 
-### Priority-weighted loading (max 3 files per task)
+### Knowledge Graph — concept-based retrieval
+
+Instead of flat keyword matching, docwise uses a **concept graph** to find related knowledge across topics.
+
+#### graph.yaml
+
+```yaml
+# knowledge/graph.yaml — rebuilt on every /generate and /update
+
+nodes:
+  ViewModel:
+    files: ["architecture/core.md", "architecture/nowinandroid.md"]
+  StateFlow:
+    files: ["concurrency/core.md", "architecture/core.md"]
+  UseCase:
+    files: ["architecture/core.md"]
+  Repository:
+    files: ["architecture/core.md", "data-persistence/core.md"]
+  Room:
+    files: ["data-persistence/core.md"]
+  Hilt:
+    files: ["dependency-injection/core.md"]
+  WorkManager:
+    files: ["background-work/core.md"]
+
+edges:
+  - from: ViewModel
+    to: StateFlow
+    relation: "exposes state via"
+  - from: ViewModel
+    to: UseCase
+    relation: "delegates logic to"
+  - from: ViewModel
+    to: Hilt
+    relation: "injected by"
+  - from: UseCase
+    to: Repository
+    relation: "accesses data through"
+  - from: Repository
+    to: Room
+    relation: "persists with"
+  - from: Repository
+    to: WorkManager
+    relation: "syncs via"
+  - from: StateFlow
+    to: LiveData
+    relation: "replaces"
+```
+
+#### How the skill uses the graph
 
 ```
-1. Read knowledge/index.md (~200 tokens)
-2. Match current task keywords against index
-3. Find all knowledge files for matched topic
-4. Sort by priority: official > team > reference > community
-5. Load top 3 files maximum (~500 tokens each = ~1500 tokens total)
-6. If a file is from community source, check its verification status
-7. Apply rules to the current task
+1. Read knowledge/graph.yaml (~200-500 tokens)
+2. Match current task to concept nodes (e.g., "ViewModel")
+3. Traverse 2 hops from matched nodes:
+   ViewModel → StateFlow, UseCase, Hilt (1st hop)
+   UseCase → Repository (2nd hop)
+4. Collect all knowledge files referenced by traversed nodes
+5. Sort by priority: official > team > reference > community
+6. Load top 3 files maximum
+7. If a file is from community source, check its verification status
+8. Apply rules to the current task
 ```
 
-**Loading priority:**
+#### Graph rebuild rules
+
+The graph is **always rebuilt from scratch** during `/generate` and `/update` (when sources are re-extracted). It is never patched incrementally.
+
+```
+After ALL sources extracted:
+  1. Read ALL knowledge files in knowledge/*/
+  2. Collect ALL concept relationships from extraction output
+  3. Merge: same edge from multiple sources → keep, note both sources
+  4. Conflict: contradicting edges → higher priority source wins
+  5. Validate:
+     - Orphan nodes (no edges) → warn, keep them
+     - Nodes referencing missing files → remove those nodes
+  6. Write knowledge/graph.yaml
+```
+
+This ensures the graph is always consistent with the current knowledge files. Deleting a source removes its nodes on next rebuild.
+
+#### Fallback
+
+If `graph.yaml` doesn't exist yet (no `/generate` run), the skill falls back to keyword matching via `knowledge/index.md`. The index still exists and is maintained.
+
+**Loading priority (after graph traversal):**
 1. Always load the `official` file first (highest authority)
 2. Load `team` file if exists (company-specific supplements/overrides)
 3. Load `reference` or verified `community` file if keywords strongly match
@@ -838,3 +928,5 @@ You:
 14. Team onboarding is two commands (install plugin + /setup)
 15. Community can contribute new profiles via PR
 16. Partial failures are handled gracefully — never lose existing knowledge
+17. Knowledge graph connects concepts across topics — AI finds related knowledge via traversal, not just keyword matching
+18. Graph is always rebuilt from scratch on /generate and /update — never stale
