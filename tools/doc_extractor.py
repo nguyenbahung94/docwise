@@ -297,6 +297,11 @@ def build_block_sequence(raw_html: str) -> List[Dict]:
         lm = re.search(r'data-label=["\']([^"\']+)["\']', preceding)
         if lm:
             lang_label = lm.group(1).strip().lower()
+        # Fallback: detect language from code content if no data-label
+        if not lang_label:
+            detected = detect_lang(code)
+            if detected in ("kotlin", "java", "groovy"):
+                lang_label = detected
         tagged.append((m.start(), {"type": "code", "text": code, "lang_label": lang_label}))
 
     # Paragraphs
@@ -327,24 +332,73 @@ def build_block_sequence(raw_html: str) -> List[Dict]:
     # Apply Kotlin preference to consecutive labelled code blocks
     blocks = _prefer_kotlin(blocks)
 
+    # Final pass: remove any remaining Java/Groovy code blocks
+    blocks = [b for b in blocks if not (
+        b.get("type") == "code" and b.get("lang_label", "") in ("java", "groovy")
+    )]
+
     return blocks
 
 
+_LANG_TAB_HEADINGS = {"kotlin", "java", "groovy", "kts"}
+
+
+def _is_lang_tab_heading(block: Dict) -> bool:
+    """Return True if a heading block is just a language tab label (Kotlin/Java/Groovy/Kts)."""
+    return (
+        block.get("type") == "heading"
+        and block.get("text", "").strip().lower() in _LANG_TAB_HEADINGS
+    )
+
+
 def _prefer_kotlin(blocks: List[Dict]) -> List[Dict]:
-    """Remove Java/Groovy code blocks when a Kotlin equivalent is adjacent."""
-    result = []
-    i = 0
+    """Remove Java/Groovy code blocks when a Kotlin equivalent is present in the same group.
+
+    Groups are formed from consecutive code blocks where separating blocks are
+    only language-tab headings (e.g. '### Kotlin', '### Java').  Those heading
+    blocks are dropped entirely — they are tab labels, not real headings.
+
+    Also filters out any remaining code blocks detected as Java/Groovy by content
+    when a Kotlin block with the same heading name exists.
+    """
     lang_labels = {"kotlin", "java", "groovy", "kts"}
+
+    # Step 1: collapse heading-separated language groups into flat code-only groups.
+    # Walk through all blocks; when we hit a code block with a lang_label (or a
+    # lang-tab heading), collect a group until we reach something that is neither.
+    result: List[Dict] = []
+    i = 0
     while i < len(blocks):
         block = blocks[i]
-        if block.get("type") == "code" and block.get("lang_label", "") in lang_labels:
-            group = [block]
-            j = i + 1
-            while j < len(blocks) and blocks[j].get("type") == "code" and blocks[j].get("lang_label", "") in lang_labels:
-                group.append(blocks[j])
-                j += 1
-            kotlin_blocks = [b for b in group if b.get("lang_label", "") in ("kotlin", "kts")]
-            result.extend(kotlin_blocks if kotlin_blocks else [group[0]])
+        is_lang_code = block.get("type") == "code" and block.get("lang_label", "") in lang_labels
+        is_lang_heading = _is_lang_tab_heading(block)
+
+        if is_lang_code or is_lang_heading:
+            # Collect the whole group (code blocks + intervening lang-tab headings)
+            group_code: List[Dict] = []
+            pending_lang = ""  # lang from a heading before a code block
+            j = i
+            while j < len(blocks):
+                b = blocks[j]
+                if _is_lang_tab_heading(b):
+                    # Remember the language for the next code block
+                    pending_lang = b.get("text", "").strip().lower()
+                    j += 1
+                elif b.get("type") == "code":
+                    # Inherit lang from preceding heading if code has no label
+                    if not b.get("lang_label") and pending_lang in lang_labels:
+                        b["lang_label"] = pending_lang
+                    if b.get("lang_label", "") in lang_labels:
+                        group_code.append(b)
+                        pending_lang = ""
+                        j += 1
+                    else:
+                        break
+                else:
+                    break
+            if group_code:
+                kotlin_blocks = [b for b in group_code if b.get("lang_label", "") in ("kotlin", "kts")]
+                result.extend(kotlin_blocks if kotlin_blocks else [group_code[0]])
             i = j
         else:
             result.append(block)
@@ -376,6 +430,29 @@ _POSITIVE_KW = re.compile(
     r"\b(should|always|recommend|prefer|best\s+practice|correct|right\s+way)\b",
     re.IGNORECASE,
 )
+
+# Patterns that identify boilerplate/noise lines that should never appear as guidelines
+_NOISE_GUIDELINES = re.compile(
+    r"^(?:"
+    r"android\s+developers"
+    r"|content\s+and\s+code\s+samples"
+    r"|content\s+license"
+    r"|last\s+updated"
+    r"|stay\s+organized\s+with\s+collections"
+    r"|save\s+and\s+categorize\s+content"
+    r")"
+    r"|\d{4}-\d{2}-\d{2}\s+utc\.?"   # bare date lines
+    r"|\bLast\s+updated\b"
+    r"|\bContent\s+and\s+code\s+samples\s+on\s+this\s+page\b",
+    re.IGNORECASE,
+)
+
+# Actionable words that make a guideline worth keeping
+_ACTIONABLE_KW = re.compile(
+    r"\b(should|must|recommend|ensure|avoid|always|never|prefer|use|don'?t|do\s+not|consider|make\s+sure)\b",
+    re.IGNORECASE,
+)
+
 _WHY_PATTERN = re.compile(
     r"(?:because|since|this\s+(?:is\s+)?(?:ensures?|prevents?|avoids?|allows?)|so\s+that)\s+(.+?)(?:\.|$)",
     re.IGNORECASE,
@@ -450,13 +527,50 @@ class KnowledgeBuilder:
         text = text.strip()
         if not _is_meaningful(text) or len(text) > 400:
             return
+        if _NOISE_GUIDELINES.search(text):
+            return
+        if len(text) < 25 and not _ACTIONABLE_KW.search(text):
+            return
         k = self._key(text)
         if k not in self._seen:
             self._seen.add(k)
             self.guidelines.append(text)
 
+    # Exact strings that are not real concepts — just tab labels or UI noise
+    _CONCEPT_BLOCKLIST: set = {
+        "Kotlin", "Java", "Groovy", "Kts",
+        "Caution", "Caution:", "Note", "Note:", "Warning", "Warning:",
+        "Overview", "Example", "Examples",
+    }
+
+    # Common short English words that appear bold but carry no API meaning
+    _COMMON_WORDS = re.compile(
+        r"^(?:the|a|an|it|is|are|was|were|be|been|being|have|has|had|do|does|did"
+        r"|will|would|could|should|may|might|can|shall|to|of|in|on|at|for|with|by"
+        r"|and|or|not|no|yes|all|any|if|as|so|but|that|this|these|those|more|less"
+        r"|some|each|every|other|also|only|just|very|well|new|old|good|bad|best"
+        r"|right|left|top|bottom|first|last|next|prev|see|use|get|set|add|run"
+        r"|open|close|start|stop|load|save|send|read|write|view|page|item|list"
+        r"|type|name|value|data|state|time|date|key|id|url|app|code|file|test"
+        r"|build|check|show|find|make|call|click|tap|update|change|help)$",
+        re.IGNORECASE,
+    )
+
     def add_concept(self, text: str) -> None:
-        if text and text not in self.concepts:
+        text = text.strip()
+        if not text:
+            return
+        if len(text) < 3:
+            return
+        if text in self._CONCEPT_BLOCKLIST:
+            return
+        if "Stay organized" in text or "Save and categorize" in text:
+            return
+        # Single-word concepts: only keep PascalCase API names, not plain English words
+        if " " not in text and not re.match(r"^[A-Z][a-z]+[A-Z]", text):
+            if self._COMMON_WORDS.match(text):
+                return
+        if text not in self.concepts:
             self.concepts.append(text)
 
     def has_content(self) -> bool:
@@ -581,17 +695,24 @@ def extract_concept_relations(blocks: List[Dict]) -> List[str]:
 # ---------------------------------------------------------------------------
 
 def detect_lang(code: str) -> str:
+    # Kotlin checks first (most common in Android docs)
     if re.search(r"\bfun\s+\w+|val\s+\w+|var\s+\w+\s*=|\.collect\s*\{|coroutineScope|suspend\s+fun", code):
         return "kotlin"
-    if re.search(r"\bpublic\s+\w+|@Override|import\s+java\.|System\.out\.print", code):
-        return "java"
-    if re.search(r"def\s+\w+\(|import\s+\w+|print\(|self\.\w+", code):
-        return "python"
-    if re.search(r'^\s*\{|\}\s*$|"[^"]+"\s*:', code, re.MULTILINE):
-        return "json"
-    if re.search(r"<\w+[^>]*>.*</\w+>|android:", code, re.DOTALL):
+    if re.search(r"import\s+androidx\.|import\s+android\.|import\s+kotlin\.|import\s+com\.", code):
+        return "kotlin"
+    if re.search(r"@Composable|@Inject|@Module|@Provides|@HiltViewModel", code):
+        return "kotlin"
+    # Kotlin-style dependencies block
+    if re.search(r'implementation\s*\(', code):
+        return "kotlin"
+    # XML
+    if re.search(r"<\w+[^>]*>.*</\w+>|android:|xmlns:", code, re.DOTALL):
         return "xml"
-    if re.search(r"dependencies\s*\{|implementation\s+[\"']|plugins\s*\{", code):
+    # Java (after Kotlin to avoid false positives)
+    if re.search(r"\bpublic\s+class\b|\bpublic\s+void\b|@Override|import\s+java\.", code):
+        return "java"
+    # Groovy-style dependencies
+    if re.search(r"implementation\s+[\"']|dependencies\s*\{.*\n.*implementation\s+[\"']", code, re.DOTALL):
         return "groovy"
     return ""
 
@@ -663,9 +784,14 @@ def render_knowledge_file(
                 lines.append("| " + " | ".join(padded[:len(headers)]) + " |")
             lines.append("")
 
-    if builder.guidelines and not builder.rules:
+    if builder.guidelines:
         lines.append("## Guidelines")
-        for g in builder.guidelines:
+        actionable = [g for g in builder.guidelines if _ACTIONABLE_KW.search(g)]
+        if actionable:
+            selected_guidelines = actionable[:20]
+        else:
+            selected_guidelines = builder.guidelines[:15]
+        for g in selected_guidelines:
             lines.append(f"- {g}")
         lines.append("")
 
