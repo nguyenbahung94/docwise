@@ -19,9 +19,21 @@
 - Build concepts list from headings
 
 ### Rule: Always use 2-pass LLM enhancement
-- Pass 1: Generate semantic sections (Mental Model, Lifecycle, Decisions, etc.)
-- Pass 2: Self-review with checklist to find gaps
+- Pass 1: Generate semantic sections (Core Concepts, Mental Model, Decisions, etc.)
+- Pass 2: Hallucination check + precision deepening
 - Never trust single-pass output — it's always shallow
+
+### Rule: Ground EVERYTHING to source doc
+- LLM WILL hallucinate topics not in the doc (DI, Testing, Navigation)
+- Every claim must trace back to a heading, rule, or code block in the input
+- If a section has nothing grounded to add → SKIP IT
+- Pass 2 must explicitly check for and remove hallucinated content
+
+### Rule: Identify core concepts by emphasis FIRST
+- Concepts in multiple headings = core
+- Concepts in rules AND guidelines AND code = core
+- Concepts mentioned once in passing = secondary
+- 80% of output should cover core concepts, 20% secondary
 
 ---
 
