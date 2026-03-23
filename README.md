@@ -18,7 +18,7 @@ AI coding assistants use outdated patterns because their training data is frozen
 
 ```bash
 # Install
-claude plugin add your-username/docwise
+claude plugin add nguyenbahung94/docwise
 
 # Pick your tech stack
 /setup
