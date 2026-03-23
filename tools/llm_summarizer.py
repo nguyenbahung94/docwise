@@ -26,8 +26,8 @@ from urllib.request import Request, urlopen
 _TIMEOUT = 600  # seconds — 32B models need 3-5 min for long prompts
 _SECTION_ANCHOR = "## Concepts (for graph)"
 _NEW_SECTION_NAMES = [
-    "Mental Model", "Lifecycle & Timing", "Decision Framework",
-    "Internal Composition", "Cost & Performance", "Anti-Patterns", "Key Relationships",
+    "Core Concepts", "Mental Model", "Lifecycle & Timing", "Decision Framework",
+    "How It Works Internally", "Common Mistakes", "Key Relationships",
 ]
 
 _PROMPT_TEMPLATE = """\
@@ -39,144 +39,144 @@ Your audience is mid-level developers who can read API docs but need the \
 {content}
 --- END ---
 
-The content above was mechanically extracted from official docs. It has code \
-and surface-level rules, but LACKS:
-- The mental model (why these APIs exist at all)
-- Lifecycle timing (exactly when each thing runs/cancels/restarts)
-- Direct comparisons (when to pick X over Y)
-- Composition relationships (X = Y + Z under the hood)
-- Architecture context (how this topic fits into app architecture)
-- Cost/performance implications (why something is expensive, what it allocates)
-- The anti-patterns that LOOK correct but break in subtle ways
+CRITICAL CONSTRAINT — GROUNDING RULE:
+You must ONLY analyze concepts, APIs, and patterns that appear in the content above.
+Do NOT add topics the doc doesn't cover. If the doc is about "UI architecture and \
+data flow", do NOT add sections about DI, Testing, Navigation, or other topics \
+unless the doc explicitly discusses them.
 
-STEP 1 — Before writing, ask yourself these questions about the content:
-1. What PROBLEM does this topic solve? Why can't you just write normal code?
-2. For EACH API/concept mentioned: when exactly does it trigger, cancel, restart?
-3. Which APIs are commonly confused with each other? What's the difference?
-4. What is each API made of internally? (e.g. "X = Y + Z")
-5. What looks correct but is actually wrong? Why?
-6. How does this topic interact with the broader architecture (ViewModel, navigation, lifecycle)?
-7. What would a lifecycle/timing DIAGRAM look like?
-8. What are the performance costs? What gets allocated/tracked?
+For every claim you make, you must be able to point to a specific heading, code \
+block, rule, or guideline in the input that supports it. If you can't point to it, \
+don't write it.
 
-STEP 2 — Now write these sections based on your answers:
+STEP 1 — Identify CORE CONCEPTS by emphasis:
+Read the input carefully. Find:
+- Concepts that appear in MULTIPLE headings → these are core
+- Concepts repeated in rules AND guidelines AND code → these are core
+- Patterns the doc explicitly says "should", "must", or "important" → these are core
+- Concepts that only appear once in passing → these are secondary
+
+List the top 3-5 core concepts BEFORE writing. Everything you write must center \
+around these core concepts.
+
+STEP 2 — For each core concept, ask:
+1. What PROBLEM does it solve? What goes wrong WITHOUT it?
+2. What is the PRECISE mechanism? (not vague — HOW does it work?)
+3. What are the BOUNDARIES? (when does it apply, when does it NOT apply?)
+4. What LOOKS correct but is actually wrong?
+5. How does it CONNECT to the other core concepts in this doc?
+
+STEP 3 — Write these sections:
+
+## Core Concepts
+List the 3-5 core concepts you identified and WHY they are core (what evidence \
+from the doc). This anchors everything that follows.
 
 ## Mental Model
-- **The Problem**: What specific problem does this topic solve? (1-2 sentences, sharp)
+- **The Problem**: What specific problem does this doc's topic solve? (1-2 sentences)
 - **Core Insight**: The single most important thing to understand (1 sentence)
-- **Classification**: Group/categorize the APIs by their PURPOSE (not alphabetically):
-  - Category 1: [name] — APIs that do X
-  - Category 2: [name] — APIs that do Y
-- **Architecture Context**: How does this fit with ViewModel, Repository, Navigation?
+- **How concepts connect**: Draw the relationship between core concepts. \
+Use "A → B" format. Show how data/state/events flow between them.
 
 ## Lifecycle & Timing
-Show EXACTLY when each API runs. Use this format:
+ONLY if the doc discusses lifecycle-related APIs or timing.
+Show EXACTLY when each API/concept activates. Use this format:
 ```
-Enter Composition
-  → [what starts]
-Recomposition
-  → [what runs]
-Key changes
-  → [what cancels, what restarts]
-Leave Composition
-  → [what cleans up]
+[trigger event]
+  → [what happens]
+  → [what changes]
+[cleanup event]
+  → [what gets cleaned up]
 ```
-Then for each API, one line: "API — triggers: X, cancels: Y, restarts when: Z"
+Then for each API: "API — triggers: X, cancels: Y, restarts when: Z"
+SKIP this section entirely if the doc is not about lifecycle-aware APIs.
 
 ## Decision Framework
-A comparison table. For EACH pair of similar APIs, explain the difference:
+For concepts that developers commonly confuse or misuse:
 | I need to... | Use | NOT | Because |
 | --- | --- | --- | --- |
-| [concrete scenario] | [correct API] | [wrong API] | [specific reason] |
+Only include rows for concepts ACTUALLY discussed in the doc.
 
-Include at least 5 rows covering real scenarios.
-
-## Internal Composition
-How APIs are built from each other:
+## How It Works Internally
+For concepts where the doc explains or implies internals:
 - "X = Y + Z" format
-- What this means practically (when knowing the internals helps you debug)
+- What this means practically
+SKIP if the doc doesn't discuss internals.
 
-## Cost & Performance
-For each API that has performance implications:
-- What it allocates/tracks internally
-- When it becomes expensive
-- How to minimize cost
-
-## Anti-Patterns
-For each anti-pattern:
-- **Name** (short, memorable)
-- **Looks like**: (the wrong code — short snippet)
-- **Why it breaks**: (specific, not vague)
-- **Fix**: (the correct code — short snippet)
-
-At least 3 anti-patterns. Focus on mistakes that LOOK correct.
+## Common Mistakes
+For each mistake (must be grounded in the doc's warnings, pitfalls, or "don't" rules):
+- **Name** (short)
+- **Looks like**: (wrong code — max 5 lines)
+- **Why it breaks**: (PRECISE mechanism, not vague)
+- **Correct**: (right code — max 5 lines)
 
 ## Key Relationships
-- Equivalences: "X = Y + Z"
-- Dependencies: "X requires Y to work correctly"
-- Ordering: "X must happen before Y"
-- Conflicts: "Never use X together with Y because..."
+ONLY relationships between concepts IN this doc:
+- "X requires Y" / "X enables Y" / "X replaces Y"
+- Flow: "Event → State → UI" or similar
 
-RULES:
-- Output ONLY the sections above — nothing else
-- Do NOT repeat Rules, Code Patterns, Pitfalls, or Guidelines from the input
-- Be SPECIFIC — no "ensure proper handling" or "be careful with lifecycle"
-- Every claim must be concrete: name the API, name the callback, name the dispatcher
-- Use Kotlin snippets only when they make the point clearer (max 5 lines each)
-- Start directly with "## Mental Model" — no preamble
+HARD RULES:
+- GROUNDED: Every section must trace back to content in the input. No hallucination.
+- FOCUSED: Only analyze what the doc covers. Do NOT expand scope.
+- PRECISE: "observable state triggers recomposition" NOT "avoid concurrency issues"
+- CORE FIRST: Spend 80% of your output on core concepts, 20% on secondary
+- NO FILLER: If a section has nothing grounded to add, SKIP IT entirely
+- Start directly with "## Core Concepts" — no preamble
 """
 
 # Pass 2: Review & Deepen
 _REVIEW_PROMPT_TEMPLATE = """\
-You are a staff-level engineer reviewing a knowledge base entry written by a \
-mid-level developer. Your job is to find GAPS and DEEPEN the analysis.
+You are reviewing a knowledge base entry. Your job is to find 2 types of problems:
+
+1. **HALLUCINATION** — content that was NOT in the original doc
+2. **GAPS** — core concepts from the doc that are missing or shallow
 
 --- CURRENT KNOWLEDGE FILE ---
 {content}
 --- END ---
 
-REVIEW CHECKLIST — go through each and find what's missing or shallow:
+REVIEW STEP 1 — HALLUCINATION CHECK:
+Look at every section. For each claim, ask: "Is this grounded in the Rules, \
+Code Patterns, Pitfalls, or Guidelines sections above?"
+- If a section discusses topics NOT present in the extracted content → REMOVE IT
+- If a claim can't be traced to the input → FLAG IT
+- Common hallucinations: adding DI/Testing/Navigation when doc doesn't cover them
 
-1. **Lifecycle Timing**: For EVERY API mentioned in the file, is the exact \
-trigger/cancel/restart timing documented? If any API is missing timing info, add it.
+REVIEW STEP 2 — CORE CONCEPT DEPTH CHECK:
+Look at the "## Core Concepts" section. For each core concept listed:
+- Is it explained with PRECISE mechanism (not vague)?
+- Does it explain WHAT GOES WRONG without it? (the failure mode)
+- Are boundaries clear? (when it applies vs when it doesn't)
+- Is the connection to other core concepts explicit?
 
-2. **Direct Comparisons**: Are there pairs of APIs that developers commonly confuse? \
-For each pair, is there a clear "use X when..., use Y when..." comparison? \
-Look for missing comparisons.
+REVIEW STEP 3 — PRECISION CHECK:
+Find vague language and replace with precise language:
+- "avoid issues" → WHAT specific issue?
+- "can cause problems" → WHAT problem, WHEN?
+- "improves performance" → HOW, by preventing WHAT?
+- "concurrency issues" → is it really concurrency, or is it about observability?
 
-3. **Internal mechanics**: For claims like "X is expensive" — is the WHY explained? \
-(what gets allocated, what gets tracked, what runs on which thread?) \
-Shallow claims must be deepened with specifics.
+REVIEW STEP 4 — MISSING DISTINCTIONS:
+Look at the doc's content. Are there important distinctions the analysis missed?
+Examples of distinctions docs commonly make:
+- State vs Event (render vs action)
+- Where state lives vs who reads it
+- Observable state vs plain variables
+- Hoisting direction (up) vs data flow direction (down)
 
-4. **Subtle behaviors**: Are there behaviors that ONLY show up in edge cases? \
-(e.g., "snapshotFlow only emits when State read INSIDE its block changes, \
-not when external state changes" — this kind of nuance)
-
-5. **Architecture integration**: How does this topic interact with ViewModel, \
-Navigation, DI (Hilt), testing? Is this covered?
-
-6. **Missing APIs**: Are there related APIs mentioned in code but not analyzed? \
-(e.g., rememberUpdatedState, derivedStateOf relationships)
-
-7. **Anti-pattern depth**: Do anti-patterns explain the EXACT failure mode? \
-Not just "can cause issues" but "causes X because Y happens at Z time"
-
-NOW OUTPUT ONLY THE IMPROVEMENTS:
-
-For each gap you found, output in this format:
+OUTPUT FORMAT:
 
 ## [Section Name] (deepened)
+[Improved content — more precise, better grounded]
 
-[Improved/additional content for that section]
+## Hallucination Report
+[List any sections or claims that should be REMOVED because they're not in the doc]
 
 RULES:
-- Only output sections that need improvement — skip sections that are already good
-- Add "(deepened)" suffix to section names so they can be merged
-- Be EXTREMELY specific — name APIs, callbacks, dispatchers, thread names
-- If you add a comparison, use a table
-- If you add timing, use the Enter/Recompose/Key/Leave format
-- Do NOT repeat content that's already good — only add what's missing
-- Start directly with the first section — no preamble
+- REMOVE hallucinated content — don't just flag it, mark it for removal
+- DEEPEN with precision — replace vague with specific
+- GROUND everything — if it's not in the doc, it doesn't belong
+- Start directly with improvements — no preamble
 """
 
 # ---------------------------------------------------------------------------
