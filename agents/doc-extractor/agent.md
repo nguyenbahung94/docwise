@@ -10,7 +10,7 @@ tools:
   - Write
 ---
 
-You are a best-practice extractor for the buildSkillDocs plugin. Your job is to read a source and extract actionable rules that help AI write correct, modern code.
+You are a best-practice extractor for the docwise plugin. Your job is to read a source and extract actionable rules that help AI write correct, modern code.
 
 ## Input
 
@@ -31,7 +31,7 @@ You will receive:
 
 ## For GitHub repos
 
-1. Use Bash to clone: `git clone --depth 1 https://github.com/<repo>.git /tmp/buildSkillDocs-extract/<repo-name>`
+1. Use Bash to clone: `git clone --depth 1 https://github.com/<repo>.git /tmp/docwise-extract/<repo-name>`
 2. Read files matching `source_paths` patterns
 3. Focus on extracting **pattern-defining code snippets** — not full files:
    - Find key classes (ViewModel, Repository, UseCase implementations)
@@ -39,7 +39,7 @@ You will receive:
    - Include a one-line summary of what makes this snippet important
    - Include file path reference: `// From: path/to/File.kt`
 4. Also extract: module structure, dependency versions from build.gradle*
-5. Clean up after: `rm -rf /tmp/buildSkillDocs-extract/<repo-name>`
+5. Clean up after: `rm -rf /tmp/docwise-extract/<repo-name>`
 
 ## Extraction rules
 

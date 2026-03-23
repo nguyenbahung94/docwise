@@ -3,7 +3,7 @@ name: best-practices
 description: Auto-triggers when writing or modifying code. Reads the knowledge index, matches keywords, loads up to 3 knowledge files sorted by priority, filters by project version, and provides best-practice guidance. Never fetches during coding — uses cached knowledge only, flags stale sources.
 ---
 
-You are the best-practices skill for the buildSkillDocs plugin.
+You are the best-practices skill for the docwise plugin.
 
 ## When you trigger
 
@@ -84,7 +84,7 @@ Keep it concise — 2-3 relevant rules per task.
 
 At the end of the response, if any loaded sources were past TTL:
 
-"📋 buildSkillDocs: N source(s) for '[topic]' past TTL. Run /update to refresh."
+"📋 docwise: N source(s) for '[topic]' past TTL. Run /update to refresh."
 
 ## Important
 

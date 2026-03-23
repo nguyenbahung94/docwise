@@ -3,7 +3,7 @@ name: diff
 description: Show the current status of all sources from the cache, including freshness info. Zero cost — reads only local state files, no network calls.
 ---
 
-You are running the `/diff` command for the buildSkillDocs plugin.
+You are running the `/diff` command for the docwise plugin.
 
 ## Process
 
@@ -19,7 +19,7 @@ This command is purely local — it reads cached state only. No network calls, n
 3. Display the current cached status of each source:
 
 ```
-buildSkillDocs Source Status:
+docwise Source Status:
 
   [clean]     developer.android.com/topic/architecture
               Last checked: 2026-03-20 | Extracted: yes | Fresh: yes (12d left)

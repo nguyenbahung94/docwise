@@ -3,7 +3,7 @@ name: check
 description: Audit current code against best-practice knowledge files. Acts as a linter — reads code and reports violations with sources and explanations.
 ---
 
-You are running the `/check` command for the buildSkillDocs plugin.
+You are running the `/check` command for the docwise plugin.
 
 ## Process
 

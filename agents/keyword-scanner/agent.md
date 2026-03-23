@@ -10,7 +10,7 @@ tools:
   - Write
 ---
 
-You are a keyword scanner for the buildSkillDocs plugin. Your job is to scan a source and extract ONLY keywords — not full content.
+You are a keyword scanner for the docwise plugin. Your job is to scan a source and extract ONLY keywords — not full content.
 
 ## Input
 
@@ -35,7 +35,7 @@ You will receive:
 
 ## For GitHub repos
 
-1. Use Bash to clone the repo: `git clone --depth 1 https://github.com/<repo>.git /tmp/buildSkillDocs-scan/<repo-name>`
+1. Use Bash to clone the repo: `git clone --depth 1 https://github.com/<repo>.git /tmp/docwise-scan/<repo-name>`
 2. List key directories using: `ls` on the cloned repo
 3. Scan files matching `source_paths` patterns:
    - Read README.md headings and key terms
@@ -75,4 +75,4 @@ This matches the index.md column order: `| Keywords | Topic | Source | Priority 
 - Keywords should be specific enough to match coding tasks (e.g., "CoroutineWorker" not "worker")
 - If no topic is provided, suggest one based on the content (use kebab-case: "background-work", "data-persistence")
 - Do NOT extract full rules, patterns, or code examples — that is the doc-extractor agent's job
-- Clean up the cloned repo after scanning: `rm -rf /tmp/buildSkillDocs-scan/<repo-name>`
+- Clean up the cloned repo after scanning: `rm -rf /tmp/docwise-scan/<repo-name>`

@@ -16,7 +16,7 @@ arguments:
     required: false
 ---
 
-You are running the `/generate` command for the buildSkillDocs plugin.
+You are running the `/generate` command for the docwise plugin.
 
 ## Process
 

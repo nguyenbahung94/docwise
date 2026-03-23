@@ -7,7 +7,7 @@ arguments:
     required: true
 ---
 
-You are running the `/remove-source` command for the buildSkillDocs plugin.
+You are running the `/remove-source` command for the docwise plugin.
 
 ## Process
 

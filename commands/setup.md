@@ -3,14 +3,14 @@ name: setup
 description: First-install setup — pick a tech stack profile to pre-configure sources and knowledge files.
 ---
 
-You are running the `/setup` command for the buildSkillDocs plugin.
+You are running the `/setup` command for the docwise plugin.
 
 ## Process
 
 1. List available profiles by reading directories under `profiles/`:
 
 ```
-Welcome to buildSkillDocs!
+Welcome to docwise!
 
 Pick your stack:
   1. Android (Kotlin + Jetpack)

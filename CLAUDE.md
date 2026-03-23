@@ -1,4 +1,4 @@
-# buildSkillDocs Plugin
+# docwise Plugin
 
 ## Auto-trigger dispatch
 
@@ -6,8 +6,8 @@ The skill triggers based on `project.file_patterns` configured in `sources.yaml`
 
 | Condition | Action |
 |---|---|
-| Writing, modifying, or reviewing code matching project.file_patterns | Invoke buildSkillDocs:best-practices skill |
-| User says "check docs for X" or "what do the docs say about X" | Invoke buildSkillDocs:best-practices skill |
+| Writing, modifying, or reviewing code matching project.file_patterns | Invoke docwise:best-practices skill |
+| User says "check docs for X" or "what do the docs say about X" | Invoke docwise:best-practices skill |
 | User says "check my code" or "audit best practices" | Run /check command |
 
 If `project.file_patterns` is empty or not configured, the skill does not auto-trigger. Run /setup to configure.

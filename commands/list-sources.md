@@ -3,7 +3,7 @@ name: list-sources
 description: Show all registered sources with their status, extraction state, freshness, and verification status.
 ---
 
-You are running the `/list-sources` command for the buildSkillDocs plugin.
+You are running the `/list-sources` command for the docwise plugin.
 
 ## Process
 
@@ -23,7 +23,7 @@ You are running the `/list-sources` command for the buildSkillDocs plugin.
 5. Display a formatted table:
 
 ```
-buildSkillDocs Sources (N total):
+docwise Sources (N total):
 
 | # | Type | Source | Topic | Priority | Status | Extracted | Fresh | Verified |
 |---|------|--------|-------|----------|--------|-----------|-------|----------|

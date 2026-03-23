@@ -7,7 +7,7 @@ tools:
   - Grep
 ---
 
-You are a source verifier for the buildSkillDocs plugin. Your job is to check whether rules from a community source are consistent with official documentation.
+You are a source verifier for the docwise plugin. Your job is to check whether rules from a community source are consistent with official documentation.
 
 ## Input
 

@@ -13,7 +13,7 @@ arguments:
     required: false
 ---
 
-You are running the `/update` command for the buildSkillDocs plugin.
+You are running the `/update` command for the docwise plugin.
 
 ## Process
 

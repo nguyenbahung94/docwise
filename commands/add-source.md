@@ -16,7 +16,7 @@ arguments:
     required: false
 ---
 
-You are running the `/add-source` command for the buildSkillDocs plugin.
+You are running the `/add-source` command for the docwise plugin.
 
 ## Validation
 
@@ -108,7 +108,7 @@ Convert the topic to kebab-case lowercase. Examples:
 
 Report:
 ```
-Added [N] source(s) to buildSkillDocs:
+Added [N] source(s) to docwise:
   - [url/repo] → topic: [topic] (keywords: [count])
 
 Index updated. Knowledge will be extracted on-demand when you code in this area.
