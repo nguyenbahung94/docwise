@@ -57,6 +57,9 @@ You are running the `/update` command for the buildSkillDocs plugin.
    - Update sync-state.yaml `verified` field if community
    - Log "[changed] <source> — re-extracted"
 
+   After all changed sources are re-extracted, rebuild `knowledge/graph.yaml` using the same process as /generate step 8.
+   Only rebuild if at least one source was re-extracted (skip if all unchanged).
+
    **Within TTL (skipped):**
    - Do not fetch, do not modify
    - Log "[skipped] <source> — fresh (Nd left)"
