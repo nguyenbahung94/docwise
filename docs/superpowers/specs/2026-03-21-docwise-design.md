@@ -1,4 +1,4 @@
-# buildSkillDocs — Design Spec
+# docwise — Design Spec
 
 ## Problem
 
@@ -8,7 +8,7 @@ This affects every ecosystem — Android, React, Python, iOS, and more. Hundreds
 
 ## Solution
 
-**buildSkillDocs** is a Claude Code plugin that:
+**docwise** is a Claude Code plugin that:
 
 1. Ingests official documentation pages, GitHub repos, blogs, and any web source
 2. Builds a lightweight keyword index (cheap) — NOT full content extraction upfront
@@ -51,7 +51,7 @@ Cost: ~12K per doc page, ~35K per repo — but only for sources the user chooses
 ### Plugin structure
 
 ```
-buildSkillDocs/
+docwise/
   plugin.json                     # Plugin manifest
   CLAUDE.md                       # Plugin instructions
 
@@ -152,7 +152,7 @@ The CLAUDE.md dispatch rule reads `file_patterns` from `sources.yaml` instead of
 ```
 /setup
 
-> Welcome to buildSkillDocs!
+> Welcome to docwise!
 >
 > Pick your stack:
 >   1. Android (Kotlin + Jetpack) — 15 sources pre-configured
@@ -644,9 +644,9 @@ Auto-triggers based on `project.file_patterns` from sources.yaml.
 ### Trigger rule (CLAUDE.md dispatch entry)
 
 ```markdown
-| Writing, modifying, or reviewing code matching project.file_patterns | Invoke buildSkillDocs:best-practices |
-| User says "check docs for X" or "what do the docs say about X" | Invoke buildSkillDocs:best-practices |
-| User says "check my code against best practices" | Invoke buildSkillDocs:best-practices in audit mode |
+| Writing, modifying, or reviewing code matching project.file_patterns | Invoke docwise:best-practices |
+| User says "check docs for X" or "what do the docs say about X" | Invoke docwise:best-practices |
+| User says "check my code against best practices" | Invoke docwise:best-practices in audit mode |
 ```
 
 ### Knowledge Graph — concept-based retrieval
@@ -793,7 +793,7 @@ Normal mode (auto-trigger):
   - Mention pitfalls if current code is at risk
   - For unverified community rules: "This practice comes from [source], not officially verified"
   - At end of response (if any stale sources):
-    "📋 buildSkillDocs: 1 source for 'architecture' is older than 30 days. Run /update to refresh."
+    "📋 docwise: 1 source for 'architecture' is older than 30 days. Run /update to refresh."
 ```
 
 ### Conflict detection mode (`/check` command)
@@ -852,11 +852,11 @@ If the skill triggers and no cached knowledge file exists for a matched topic, i
 
 ```bash
 # Push to GitHub as a public repo
-git remote add origin https://github.com/your-username/buildSkillDocs.git
+git remote add origin https://github.com/your-username/docwise.git
 git push -u origin main
 
 # Anyone can install:
-claude plugin add your-username/buildSkillDocs
+claude plugin add your-username/docwise
 ```
 
 ### Community contribution
@@ -877,7 +877,7 @@ You:
   git commit + push
 
 Team:
-  claude plugin add your-username/buildSkillDocs
+  claude plugin add your-username/docwise
   /setup → pick Android
   # Works immediately — all knowledge pre-cached
 ```
@@ -885,7 +885,7 @@ Team:
 **For individuals (Option B — lazy):**
 ```
 You:
-  claude plugin add your-username/buildSkillDocs
+  claude plugin add your-username/docwise
   /setup → pick Android (or Custom)
   # Pre-built knowledge from profile works immediately
   # Additional sources extracted on-demand as you code

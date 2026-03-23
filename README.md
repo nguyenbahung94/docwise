@@ -198,7 +198,7 @@ Add a starter profile for your tech stack:
 3. Optionally add `profiles/<stack>/knowledge/` with pre-built knowledge files
 4. Submit a PR
 
-See the [Design Spec](docs/superpowers/specs/2026-03-21-buildSkillDocs-design.md) for architecture details.
+See the [Design Spec](docs/superpowers/specs/2026-03-21-docwise-design.md) for architecture details.
 
 ## License
 
