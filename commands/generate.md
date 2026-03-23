@@ -44,6 +44,7 @@ You are running the `/generate` command for the docwise plugin.
    a. Determine the `source_slug` for the output file:
       - For doc sources: derive a slug from the URL (e.g., `developer.android.com/topic/architecture` → `android-architecture`, `medium.com/@someone/my-article` → `my-article`)
       - For repo sources: use the repo name part (e.g., `google/nowinandroid` → `nowinandroid`)
+      - **Check for slug collision:** if two sources in the same topic would produce the same slug, append a suffix (e.g., `state.md`, `state-2.md`). Log a warning: "Slug collision for [topic]/[slug] — sources: [url1], [url2]"
 
    b. **Check if content changed before extracting (save tokens):**
       - Fetch the page / check repo HEAD commit

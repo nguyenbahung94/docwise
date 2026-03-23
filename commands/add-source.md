@@ -65,19 +65,28 @@ Convert the topic to kebab-case lowercase. Examples:
 
 2. The agent returns keywords, suggested topic, and discovered sub-pages.
 
-3. If sub-pages were found, present them to the user:
+3. If sub-pages were found:
+
+   a. **Check for duplicates first.** For each discovered sub-page, normalize the URL and compare against ALL existing sources in `sources.yaml`. Mark already-registered sub-pages with `[exists]`.
+
+   b. Present them to the user:
    ```
    Scanning page... Found N sub-pages:
      1. [title] — [url]
      2. [title] — [url]
+     3. [title] — [url] [exists — already registered]
+     4. [title] — [url]
      ...
 
-   Add all? Or pick specific ones? (all / 1,3,5 / none)
-   [Default: all]
+   Add all new? Or pick specific ones? (all / 1,2,4 / none)
+   Already registered sub-pages (3) will be skipped.
+   [Default: all new]
    ```
    Use AskUserQuestion to get the user's choice.
 
-4. For the parent page + each selected sub-page:
+   c. Skip any sub-pages marked `[exists]` — never create duplicate entries.
+
+4. For the parent page + each selected NEW sub-page:
    - Add entry to `sources.yaml`
    - Add keyword row to `knowledge/index.md`
    - Add entry to `.cache/sync-state.yaml` with `extracted: false`
