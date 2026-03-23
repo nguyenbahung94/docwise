@@ -1,1 +1,273 @@
-sources: []
+sources:
+  kotlin-coroutines:
+    url: https://kotlinlang.org/docs/coroutines-guide.html
+    fetched_at: "2026-03-23"
+    extracted: true
+    content_hash: null
+    verified: null
+
+  compose-state:
+    url: https://developer.android.com/develop/ui/compose/state
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-state-hoisting:
+    url: https://developer.android.com/develop/ui/compose/state-hoisting
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-state-saving:
+    url: https://developer.android.com/develop/ui/compose/state-saving
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-state-lifespans:
+    url: https://developer.android.com/develop/ui/compose/state-lifespans
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-state-callbacks:
+    url: https://developer.android.com/develop/ui/compose/state-callbacks
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-lifecycle:
+    url: https://developer.android.com/develop/ui/compose/lifecycle
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-side-effects:
+    url: https://developer.android.com/develop/ui/compose/side-effects
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-phases:
+    url: https://developer.android.com/develop/ui/compose/phases
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-architecture:
+    url: https://developer.android.com/develop/ui/compose/architecture
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-layering:
+    url: https://developer.android.com/develop/ui/compose/layering
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-compositionlocal:
+    url: https://developer.android.com/develop/ui/compose/compositionlocal
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  compose-navigation:
+    url: https://developer.android.com/develop/ui/compose/navigation
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage:
+    url: https://developer.android.com/training/data-storage
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-app-specific:
+    url: https://developer.android.com/training/data-storage/app-specific
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-shared:
+    url: https://developer.android.com/training/data-storage/shared
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-media:
+    url: https://developer.android.com/training/data-storage/shared/media
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-photo-picker:
+    url: https://developer.android.com/training/data-storage/shared/photo-picker
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-embedded-photo-picker:
+    url: https://developer.android.com/training/data-storage/shared/photo-picker/embedded
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-documents-files:
+    url: https://developer.android.com/training/data-storage/shared/documents-files
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-datasets:
+    url: https://developer.android.com/training/data-storage/shared/datasets
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-manage-all-files:
+    url: https://developer.android.com/training/data-storage/manage-all-files
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-shared-preferences:
+    url: https://developer.android.com/training/data-storage/shared-preferences
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-overview:
+    url: https://developer.android.com/training/data-storage/room
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-entities:
+    url: https://developer.android.com/training/data-storage/room/defining-data
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-daos:
+    url: https://developer.android.com/training/data-storage/room/accessing-data
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-relationships-one-to-one:
+    url: https://developer.android.com/training/data-storage/room/relationships/one-to-one
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-relationships-one-to-many:
+    url: https://developer.android.com/training/data-storage/room/relationships/one-to-many
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-relationships-many-to-many:
+    url: https://developer.android.com/training/data-storage/room/relationships/many-to-many
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-relationships-nested:
+    url: https://developer.android.com/training/data-storage/room/relationships/nested
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-async-queries:
+    url: https://developer.android.com/training/data-storage/room/async-queries
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-views:
+    url: https://developer.android.com/training/data-storage/room/creating-views
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-prepopulate:
+    url: https://developer.android.com/training/data-storage/room/prepopulate
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-migration:
+    url: https://developer.android.com/training/data-storage/room/migrating-db-versions
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-testing:
+    url: https://developer.android.com/training/data-storage/room/testing-db
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-referencing-data:
+    url: https://developer.android.com/training/data-storage/room/referencing-data
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  room-sqlite-migration:
+    url: https://developer.android.com/training/data-storage/room/sqlite-room-migration
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-sqlite:
+    url: https://developer.android.com/training/data-storage/sqlite
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null
+
+  data-storage-use-cases:
+    url: https://developer.android.com/training/data-storage/use-cases
+    fetched_at: null
+    extracted: false
+    content_hash: null
+    verified: null

@@ -1,6 +1,393 @@
 project:
-  name: ""
-  file_patterns: []
-  versions: {}
+  name: "Android App"
+  file_patterns:
+    - "*.kt"
+    - "*.kts"
+    - "*.xml"
+    - "*.gradle"
+    - "*.gradle.kts"
+  versions:
+    kotlin: "1.9+"
+    agp: "8.x"
+    compose-bom: "2024+"
+    hilt: "2.x"
+    coroutines: "1.7+"
 
-sources: []
+sources:
+  - name: kotlin-coroutines
+    url: https://kotlinlang.org/docs/coroutines-guide.html
+    type: official
+    topics: [concurrency, flow, channels, structured-concurrency]
+    ttl: 30d
+    priority: high
+
+  - name: android-lifecycle
+    url: https://developer.android.com/topic/libraries/architecture/lifecycle
+    type: official
+    topics: [lifecycle, viewmodel, livedata, savedstate]
+    ttl: 30d
+    priority: high
+
+  - name: hilt-dependency-injection
+    url: https://developer.android.com/training/dependency-injection/hilt-android
+    type: official
+    topics: [hilt, dagger, dependency-injection, modules]
+    ttl: 30d
+    priority: high
+
+  - name: jetpack-compose
+    url: https://developer.android.com/develop/ui/compose
+    type: official
+    topics: [compose, ui, state, recomposition, side-effects]
+    ttl: 30d
+    priority: medium
+
+  - name: kotlin-flow
+    url: https://kotlinlang.org/docs/flow.html
+    type: official
+    topics: [flow, stateflow, sharedflow, reactive]
+    ttl: 30d
+    priority: high
+
+  - name: android-architecture
+    url: https://developer.android.com/topic/architecture
+    type: official
+    topics: [clean-architecture, mvvm, repository-pattern, usecase]
+    ttl: 30d
+    priority: high
+
+  - name: room-database
+    url: https://developer.android.com/training/data-storage/room
+    type: official
+    topics: [room, database, dao, entities, migrations]
+    ttl: 30d
+    priority: medium
+
+  - name: navigation-component
+    url: https://developer.android.com/guide/navigation
+    type: official
+    topics: [navigation, fragments, deep-links, safe-args]
+    ttl: 30d
+    priority: medium
+
+  - name: kotlin-ksp
+    url: https://kotlinlang.org/docs/ksp-overview.html
+    type: official
+    topics: [ksp, code-generation, annotation-processing]
+    ttl: 60d
+    priority: low
+
+  - name: material-design-3
+    url: https://developer.android.com/develop/ui/compose/designsystems/material3
+    type: official
+    topics: [material3, theming, components, design-system]
+    ttl: 30d
+    priority: medium
+
+  - name: compose-state
+    url: https://developer.android.com/develop/ui/compose/state
+    type: official
+    topics: [compose-state, remember, mutableStateOf, recomposition]
+    ttl: 30d
+    priority: high
+
+  - name: compose-state-hoisting
+    url: https://developer.android.com/develop/ui/compose/state-hoisting
+    type: official
+    topics: [compose-state, state-hoisting, unidirectional-data-flow]
+    ttl: 30d
+    priority: high
+
+  - name: compose-state-saving
+    url: https://developer.android.com/develop/ui/compose/state-saving
+    type: official
+    topics: [compose-state, rememberSaveable, state-persistence]
+    ttl: 30d
+    priority: high
+
+  - name: compose-state-lifespans
+    url: https://developer.android.com/develop/ui/compose/state-lifespans
+    type: official
+    topics: [compose-state, state-lifecycle, remember-scope]
+    ttl: 30d
+    priority: high
+
+  - name: compose-state-callbacks
+    url: https://developer.android.com/develop/ui/compose/state-callbacks
+    type: official
+    topics: [compose-state, state-callbacks, snapshotFlow]
+    ttl: 30d
+    priority: high
+
+  - name: compose-lifecycle
+    url: https://developer.android.com/develop/ui/compose/lifecycle
+    type: official
+    topics: [compose-lifecycle, recomposition, composition]
+    ttl: 30d
+    priority: high
+
+  - name: compose-side-effects
+    url: https://developer.android.com/develop/ui/compose/side-effects
+    type: official
+    topics: [side-effects, LaunchedEffect, DisposableEffect, rememberCoroutineScope]
+    ttl: 30d
+    priority: high
+
+  - name: compose-phases
+    url: https://developer.android.com/develop/ui/compose/phases
+    type: official
+    topics: [compose-phases, composition, layout, drawing]
+    ttl: 30d
+    priority: high
+
+  - name: compose-architecture
+    url: https://developer.android.com/develop/ui/compose/architecture
+    type: official
+    topics: [compose-architecture, viewmodel, udf, state-holders]
+    ttl: 30d
+    priority: high
+
+  - name: compose-layering
+    url: https://developer.android.com/develop/ui/compose/layering
+    type: official
+    topics: [compose-layering, material, foundation, runtime]
+    ttl: 30d
+    priority: medium
+
+  - name: compose-compositionlocal
+    url: https://developer.android.com/develop/ui/compose/compositionlocal
+    type: official
+    topics: [compositionlocal, implicit-passing, theming]
+    ttl: 30d
+    priority: medium
+
+  - name: compose-navigation
+    url: https://developer.android.com/develop/ui/compose/navigation
+    type: official
+    topics: [compose-navigation, NavHost, navigation-compose]
+    ttl: 30d
+    priority: high
+
+  - name: data-storage
+    url: https://developer.android.com/training/data-storage
+    type: official
+    topics: [data-storage, scoped-storage, internal-storage, external-storage]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-app-specific
+    url: https://developer.android.com/training/data-storage/app-specific
+    type: official
+    topics: [app-specific-storage, getFilesDir, getCacheDir, getExternalFilesDir]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-shared
+    url: https://developer.android.com/training/data-storage/shared
+    type: official
+    topics: [shared-storage, MediaStore, ContentProvider]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-media
+    url: https://developer.android.com/training/data-storage/shared/media
+    type: official
+    topics: [media-storage, MediaStore, scoped-storage]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-photo-picker
+    url: https://developer.android.com/training/data-storage/shared/photo-picker
+    type: official
+    topics: [photo-picker, media-selection]
+    ttl: 30d
+    priority: low
+
+  - name: data-storage-embedded-photo-picker
+    url: https://developer.android.com/training/data-storage/shared/photo-picker/embedded
+    type: official
+    topics: [embedded-photo-picker]
+    ttl: 30d
+    priority: low
+
+  - name: data-storage-documents-files
+    url: https://developer.android.com/training/data-storage/shared/documents-files
+    type: official
+    topics: [StorageAccessFramework, documents, files]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-datasets
+    url: https://developer.android.com/training/data-storage/shared/datasets
+    type: official
+    topics: [datasets, shared-storage]
+    ttl: 30d
+    priority: low
+
+  - name: data-storage-manage-all-files
+    url: https://developer.android.com/training/data-storage/manage-all-files
+    type: official
+    topics: [MANAGE_EXTERNAL_STORAGE, all-files-access]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-shared-preferences
+    url: https://developer.android.com/training/data-storage/shared-preferences
+    type: official
+    topics: [SharedPreferences, key-value-data]
+    ttl: 30d
+    priority: medium
+
+  - name: room-overview
+    url: https://developer.android.com/training/data-storage/room
+    type: official
+    topics: [room, database, local-database]
+    ttl: 30d
+    priority: high
+
+  - name: room-entities
+    url: https://developer.android.com/training/data-storage/room/defining-data
+    type: official
+    topics: [room, Entity, PrimaryKey, ColumnInfo]
+    ttl: 30d
+    priority: high
+
+  - name: room-daos
+    url: https://developer.android.com/training/data-storage/room/accessing-data
+    type: official
+    topics: [room, DAO, Query, Insert, Update, Delete]
+    ttl: 30d
+    priority: high
+
+  - name: room-relationships-one-to-one
+    url: https://developer.android.com/training/data-storage/room/relationships/one-to-one
+    type: official
+    topics: [room, one-to-one, Relation, Embedded]
+    ttl: 30d
+    priority: medium
+
+  - name: room-relationships-one-to-many
+    url: https://developer.android.com/training/data-storage/room/relationships/one-to-many
+    type: official
+    topics: [room, one-to-many, Relation]
+    ttl: 30d
+    priority: medium
+
+  - name: room-relationships-many-to-many
+    url: https://developer.android.com/training/data-storage/room/relationships/many-to-many
+    type: official
+    topics: [room, many-to-many, Junction]
+    ttl: 30d
+    priority: medium
+
+  - name: room-relationships-nested
+    url: https://developer.android.com/training/data-storage/room/relationships/nested
+    type: official
+    topics: [room, nested-relationships]
+    ttl: 30d
+    priority: medium
+
+  - name: room-async-queries
+    url: https://developer.android.com/training/data-storage/room/async-queries
+    type: official
+    topics: [room, async-queries, Flow, coroutines]
+    ttl: 30d
+    priority: high
+
+  - name: room-views
+    url: https://developer.android.com/training/data-storage/room/creating-views
+    type: official
+    topics: [room, DatabaseView]
+    ttl: 30d
+    priority: medium
+
+  - name: room-prepopulate
+    url: https://developer.android.com/training/data-storage/room/prepopulate
+    type: official
+    topics: [room, prepopulate, createFromAsset, createFromFile]
+    ttl: 30d
+    priority: medium
+
+  - name: room-migration
+    url: https://developer.android.com/training/data-storage/room/migrating-db-versions
+    type: official
+    topics: [room, migration, autoMigration, Migration]
+    ttl: 30d
+    priority: high
+
+  - name: room-testing
+    url: https://developer.android.com/training/data-storage/room/testing-db
+    type: official
+    topics: [room, testing, MigrationTestHelper]
+    ttl: 30d
+    priority: medium
+
+  - name: room-referencing-data
+    url: https://developer.android.com/training/data-storage/room/referencing-data
+    type: official
+    topics: [room, TypeConverter, complex-data]
+    ttl: 30d
+    priority: medium
+
+  - name: room-sqlite-migration
+    url: https://developer.android.com/training/data-storage/room/sqlite-room-migration
+    type: official
+    topics: [room, SQLite-to-Room, migration]
+    ttl: 30d
+    priority: medium
+
+  - name: data-storage-sqlite
+    url: https://developer.android.com/training/data-storage/sqlite
+    type: official
+    topics: [SQLite, SQLiteOpenHelper]
+    ttl: 30d
+    priority: low
+
+  - name: data-storage-use-cases
+    url: https://developer.android.com/training/data-storage/use-cases
+    type: official
+    topics: [storage-best-practices, use-cases]
+    ttl: 30d
+    priority: medium
+
+  - name: background-tasks
+    url: https://developer.android.com/develop/background-work/background-tasks
+    type: official
+    topics: [background-work, WorkManager, coroutines, foreground-service]
+    ttl: 30d
+    priority: high
+
+  - name: permissions-overview
+    url: https://developer.android.com/guide/topics/permissions/overview
+    type: official
+    topics: [permissions, runtime-permissions, dangerous-permissions]
+    ttl: 30d
+    priority: high
+
+  - name: location
+    url: https://developer.android.com/develop/sensors-and-location/location
+    type: official
+    topics: [location, FusedLocationProvider, geofencing, GPS]
+    ttl: 30d
+    priority: medium
+
+  - name: app-compatibility
+    url: https://developer.android.com/guide/app-compatibility
+    type: official
+    topics: [app-compatibility, targetSdk, backward-compatibility]
+    ttl: 30d
+    priority: medium
+
+  - name: services
+    url: https://developer.android.com/develop/background-work/services
+    type: official
+    topics: [services, foreground-service, bound-service, IntentService]
+    ttl: 30d
+    priority: high
+
+  - name: navigation-navigate
+    url: https://developer.android.com/guide/navigation/use-graph/navigate
+    type: official
+    topics: [navigation, navigate, NavController, safe-args, deep-links]
+    ttl: 30d
+    priority: high
