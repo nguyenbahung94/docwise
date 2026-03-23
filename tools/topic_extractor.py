@@ -380,7 +380,7 @@ def run(args: argparse.Namespace) -> int:
     # ------------------------------------------------------------------
     if args.enhance:
         model = args.model or "qwen2.5:14b"
-        ok = run_llm_summarizer(output_file, model, passes=2)
+        ok = run_llm_summarizer(output_file, model, passes=4)
         if not ok:
             print("[topic_extractor] Warning: LLM enhancement failed — continuing without it.",
                   file=sys.stderr)

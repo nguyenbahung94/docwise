@@ -179,6 +179,81 @@ RULES:
 - Start directly with improvements — no preamble
 """
 
+# Pass 3: Fix — rewrite sections based on self-check findings
+_FIX_PROMPT_TEMPLATE = """\
+You are rewriting a knowledge base entry to fix problems found during review.
+
+--- CURRENT KNOWLEDGE FILE ---
+{content}
+--- END ---
+
+--- REVIEW FINDINGS ---
+{review}
+--- END ---
+
+Your job: produce a COMPLETE rewrite of ONLY the semantic sections \
+(everything from "## Core Concepts" to just before "## Concepts (for graph)").
+
+INSTRUCTIONS:
+1. Read the review findings carefully.
+2. REMOVE any content flagged as hallucination.
+3. DEEPEN any content flagged as shallow — use the reviewer's suggestions.
+4. ADD any missing core concepts the reviewer identified.
+5. FIX any vague language the reviewer flagged — make it precise.
+6. KEEP content the reviewer said was good — don't regress.
+
+OUTPUT:
+Write the COMPLETE set of semantic sections, fully rewritten. Include ALL sections \
+(Core Concepts, Mental Model, etc.) even if only some need changes — this output \
+will REPLACE the existing semantic sections entirely.
+
+Start directly with "## Core Concepts" — no preamble.
+"""
+
+# Pass 4: Verify — final check, confirm quality
+_VERIFY_PROMPT_TEMPLATE = """\
+You are doing a FINAL quality check on a knowledge base entry before it ships.
+
+--- KNOWLEDGE FILE ---
+{content}
+--- END ---
+
+Score each section on a 1-5 scale:
+
+| Section | Score | Issue (if < 4) |
+| --- | --- | --- |
+| Core Concepts | ? | ? |
+| Mental Model | ? | ? |
+| Decision Framework | ? | ? |
+| Common Mistakes | ? | ? |
+| Key Relationships | ? | ? |
+
+Scoring:
+- 5: Precise, grounded, actionable, no hallucination
+- 4: Good, minor improvements possible
+- 3: Missing depth or has vague claims
+- 2: Contains hallucination or misses core concepts
+- 1: Wrong or completely off-topic
+
+Then for any section scoring < 4, provide a ONE-LINE fix suggestion.
+
+Finally, output a single verdict:
+- PASS: All sections ≥ 4. Ready to ship.
+- NEEDS_FIX: Some sections < 4. List which ones.
+
+OUTPUT FORMAT:
+## Quality Report
+
+[Score table]
+
+## Verdict: PASS or NEEDS_FIX
+
+## Fixes (only if NEEDS_FIX)
+[One-line fix per section that scored < 4]
+
+Start directly with "## Quality Report" — no preamble.
+"""
+
 # ---------------------------------------------------------------------------
 # Ollama HTTP call
 # ---------------------------------------------------------------------------
@@ -311,10 +386,17 @@ def count_sections_added(new_sections: str) -> list:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Enhance a docwise knowledge file with semantic sections via Ollama."
+        description="Enhance a docwise knowledge file with semantic sections via Ollama.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""\
+Pipeline modes:
+  --passes 1  Generate only (fast, rough)
+  --passes 2  Generate + Self-check (default, good balance)
+  --passes 4  Generate + Self-check + Fix + Verify (best quality)
+""",
     )
     parser.add_argument("--input", required=True, help="Path to the knowledge .md file to enhance")
-    parser.add_argument("--model", required=True, help="Ollama model name (e.g. qwen2.5:32b)")
+    parser.add_argument("--model", required=True, help="Ollama model name (e.g. qwen2.5:14b)")
     parser.add_argument(
         "--output",
         default=None,
@@ -328,100 +410,126 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--passes",
         type=int,
-        default=2,
-        choices=[1, 2, 3],
-        help="Number of passes: 1=generate only, 2=generate+review (default), 3=generate+review+review",
+        default=4,
+        choices=[1, 2, 4],
+        help="Pipeline: 1=generate, 2=generate+check, 4=generate+check+fix+verify (default: 4)",
     )
     return parser
 
 
-def merge_deepened_sections(current: str, deepened: str) -> str:
-    """Merge deepened sections into the current file.
+def extract_raw_content(full_file: str) -> str:
+    """Extract the raw extracted content (before semantic sections)."""
+    # Find first semantic section
+    for name in _NEW_SECTION_NAMES:
+        idx = full_file.find(f"\n## {name}")
+        if idx != -1:
+            return full_file[:idx].rstrip()
+    return full_file
 
-    For sections with "(deepened)" suffix, append content to the existing section.
-    For new sections, insert before Concepts.
-    """
-    import re as _re
-    # Find all ## Section (deepened) blocks
-    pattern = r"^## (.+?) \(deepened\)\s*\n(.*?)(?=^## |\Z)"
-    matches = list(_re.finditer(pattern, deepened, _re.MULTILINE | _re.DOTALL))
 
-    if not matches:
-        # No deepened sections found — treat as raw new content
-        return insert_new_sections(current, deepened)
+def replace_semantic_sections(full_file: str, new_sections: str) -> str:
+    """Replace all semantic sections with new_sections, preserving raw content and Concepts."""
+    raw = extract_raw_content(full_file)
+    new_sections = new_sections.strip()
 
-    result = current
-    for m in matches:
-        section_name = m.group(1).strip()
-        new_content = m.group(2).strip()
-        if not new_content:
-            continue
+    # Find Concepts section to preserve
+    concepts = ""
+    anchor_idx = full_file.find(_SECTION_ANCHOR)
+    if anchor_idx != -1:
+        concepts = full_file[anchor_idx:]
 
-        # Find the existing section in current file
-        section_header = f"## {section_name}"
-        idx = result.find(section_header)
-        if idx == -1:
-            # Section doesn't exist yet — insert before Concepts
-            anchor_idx = result.find(_SECTION_ANCHOR)
-            if anchor_idx == -1:
-                result = result.rstrip("\n") + f"\n\n{section_header}\n{new_content}\n"
-            else:
-                result = result[:anchor_idx].rstrip("\n") + f"\n\n{section_header}\n{new_content}\n\n" + result[anchor_idx:]
-        else:
-            # Find the end of this section (next ## or end of file)
-            next_section = result.find("\n## ", idx + len(section_header))
-            if next_section == -1:
-                # Append to end of file
-                result = result.rstrip("\n") + f"\n\n### Deepened\n{new_content}\n"
-            else:
-                # Insert before next section
-                insert_point = next_section
-                result = result[:insert_point].rstrip("\n") + f"\n\n### Deepened\n{new_content}\n" + result[insert_point:]
-
+    result = raw + "\n\n" + new_sections + "\n"
+    if concepts:
+        result += "\n" + concepts
     return result
 
 
 def main() -> None:
     args = build_arg_parser().parse_args()
-
     output_path = args.output or args.input
+    total = args.passes
 
     print(f"[llm_summarizer] Reading: {args.input}")
     original_content = read_knowledge_file(args.input)
 
-    # Pass 1: Generate semantic sections
-    print(f"[llm_summarizer] Pass 1/{ args.passes}: Generating semantic sections ...")
+    # ── Pass 1: Generate ──────────────────────────────────────────────
+    print(f"[llm_summarizer] Pass 1/{total}: Generate semantic sections ...")
     prompt = _PROMPT_TEMPLATE.replace("{content}", original_content)
     new_sections = call_ollama(args.ollama_url, args.model, prompt)
 
     if not new_sections:
-        print("[llm_summarizer] Warning: Ollama returned an empty response. File not modified.", file=sys.stderr)
+        print("[llm_summarizer] Warning: Ollama returned empty. File not modified.", file=sys.stderr)
         sys.exit(1)
 
     enhanced = insert_new_sections(original_content, new_sections)
     added = count_sections_added(new_sections)
-    print(
-        f"[llm_summarizer] Pass 1 done: {len(added)} section(s) "
-        f"({', '.join(added) if added else 'none detected'})"
-    )
+    print(f"[llm_summarizer] Pass 1 done: {len(added)} section(s) ({', '.join(added)})")
 
-    # Pass 2+: Review & Deepen
-    for pass_num in range(2, args.passes + 1):
-        print(f"[llm_summarizer] Pass {pass_num}/{args.passes}: Review & deepen ...")
-        review_prompt = _REVIEW_PROMPT_TEMPLATE.replace("{content}", enhanced)
-        deepened = call_ollama(args.ollama_url, args.model, review_prompt)
+    if total < 2:
+        write_knowledge_file(output_path, enhanced)
+        print(f"[llm_summarizer] Written: {output_path}")
+        return
 
-        if deepened:
-            enhanced = merge_deepened_sections(enhanced, deepened)
-            # Count what was deepened
-            import re as _re
-            deepened_names = _re.findall(r"^## (.+?) \(deepened\)", deepened, _re.MULTILINE)
-            print(
-                f"[llm_summarizer] Pass {pass_num} done: deepened {len(deepened_names)} section(s) "
-                f"({', '.join(deepened_names) if deepened_names else 'raw additions'})"
-            )
+    # ── Pass 2: Self-check ────────────────────────────────────────────
+    print(f"[llm_summarizer] Pass 2/{total}: Self-check (find problems) ...")
+    review_prompt = _REVIEW_PROMPT_TEMPLATE.replace("{content}", enhanced)
+    review_findings = call_ollama(args.ollama_url, args.model, review_prompt)
+
+    if review_findings:
+        print(f"[llm_summarizer] Pass 2 done: review findings generated")
+        # Show summary of findings
+        import re as _re
+        hallucinations = _re.findall(r"hallucin|REMOVE|not in the doc|not grounded", review_findings, _re.IGNORECASE)
+        gaps = _re.findall(r"missing|shallow|vague|gap", review_findings, _re.IGNORECASE)
+        print(f"[llm_summarizer]   Hallucinations flagged: {len(hallucinations)}, Gaps found: {len(gaps)}")
+    else:
+        print(f"[llm_summarizer] Pass 2: no findings (looks clean)")
+        review_findings = ""
+
+    if total < 4:
+        # 2-pass mode: merge review findings directly
+        if review_findings:
+            enhanced = insert_new_sections(enhanced, review_findings)
+        write_knowledge_file(output_path, enhanced)
+        print(f"[llm_summarizer] Written: {output_path}")
+        return
+
+    # ── Pass 3: Fix ───────────────────────────────────────────────────
+    print(f"[llm_summarizer] Pass 3/{total}: Fix (rewrite based on findings) ...")
+    fix_prompt = _FIX_PROMPT_TEMPLATE.replace("{content}", enhanced).replace("{review}", review_findings)
+    fixed_sections = call_ollama(args.ollama_url, args.model, fix_prompt)
+
+    if fixed_sections:
+        enhanced = replace_semantic_sections(enhanced, fixed_sections)
+        fixed_count = count_sections_added(fixed_sections)
+        print(f"[llm_summarizer] Pass 3 done: rewrote {len(fixed_count)} section(s) ({', '.join(fixed_count)})")
+    else:
+        print(f"[llm_summarizer] Pass 3: no rewrite produced, keeping previous")
+
+    # ── Pass 4: Verify ────────────────────────────────────────────────
+    print(f"[llm_summarizer] Pass 4/{total}: Verify (final quality check) ...")
+    verify_prompt = _VERIFY_PROMPT_TEMPLATE.replace("{content}", enhanced)
+    verdict = call_ollama(args.ollama_url, args.model, verify_prompt)
+
+    if verdict:
+        # Extract verdict line
+        import re as _re
+        verdict_match = _re.search(r"Verdict:\s*(PASS|NEEDS_FIX)", verdict)
+        if verdict_match:
+            result = verdict_match.group(1)
+            print(f"[llm_summarizer] Pass 4 done: {result}")
+            if result == "NEEDS_FIX":
+                # Extract fix suggestions
+                fixes = _re.findall(r"^- (.+)$", verdict, _re.MULTILINE)
+                for fix in fixes[:5]:
+                    print(f"[llm_summarizer]   → {fix}")
         else:
-            print(f"[llm_summarizer] Pass {pass_num}: no improvements returned")
+            print(f"[llm_summarizer] Pass 4 done: verdict unclear")
+
+        # Append quality report as HTML comment at end of file
+        enhanced = enhanced.rstrip() + "\n\n<!-- Quality Report\n" + verdict + "\n-->\n"
+    else:
+        print(f"[llm_summarizer] Pass 4: no verdict returned")
 
     print(f"[llm_summarizer] Writing: {output_path}")
     write_knowledge_file(output_path, enhanced)
