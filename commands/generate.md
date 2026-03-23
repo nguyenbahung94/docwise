@@ -68,7 +68,14 @@ You are running the `/generate` command for the docwise plugin.
 
    e. The script writes the knowledge file directly to `knowledge/<topic>/<source-slug>.md`
 
-   f. Update `.cache/sync-state.yaml`: store new `content_hash` or `last_commit`
+   f. **Enhance with local LLM** (optional, requires Ollama):
+      ```bash
+      python3 ${CLAUDE_PLUGIN_ROOT}/tools/llm_summarizer.py --input "knowledge/<topic>/<source-slug>.md" --model qwen2.5:32b
+      ```
+      This adds Mental Model, Decision Framework, Anti-Patterns, and Key Relationships sections.
+      Skip this step if Ollama is not available — the raw knowledge file is still usable.
+
+   g. Update `.cache/sync-state.yaml`: store new `content_hash` or `last_commit`
 
 5. After each community source is extracted, spawn the `source-verifier` agent with:
    - community_knowledge_file: `knowledge/<topic>/<source-slug>.md`
