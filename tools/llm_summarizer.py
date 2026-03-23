@@ -126,6 +126,59 @@ RULES:
 - Start directly with "## Mental Model" — no preamble
 """
 
+# Pass 2: Review & Deepen
+_REVIEW_PROMPT_TEMPLATE = """\
+You are a staff-level engineer reviewing a knowledge base entry written by a \
+mid-level developer. Your job is to find GAPS and DEEPEN the analysis.
+
+--- CURRENT KNOWLEDGE FILE ---
+{content}
+--- END ---
+
+REVIEW CHECKLIST — go through each and find what's missing or shallow:
+
+1. **Lifecycle Timing**: For EVERY API mentioned in the file, is the exact \
+trigger/cancel/restart timing documented? If any API is missing timing info, add it.
+
+2. **Direct Comparisons**: Are there pairs of APIs that developers commonly confuse? \
+For each pair, is there a clear "use X when..., use Y when..." comparison? \
+Look for missing comparisons.
+
+3. **Internal mechanics**: For claims like "X is expensive" — is the WHY explained? \
+(what gets allocated, what gets tracked, what runs on which thread?) \
+Shallow claims must be deepened with specifics.
+
+4. **Subtle behaviors**: Are there behaviors that ONLY show up in edge cases? \
+(e.g., "snapshotFlow only emits when State read INSIDE its block changes, \
+not when external state changes" — this kind of nuance)
+
+5. **Architecture integration**: How does this topic interact with ViewModel, \
+Navigation, DI (Hilt), testing? Is this covered?
+
+6. **Missing APIs**: Are there related APIs mentioned in code but not analyzed? \
+(e.g., rememberUpdatedState, derivedStateOf relationships)
+
+7. **Anti-pattern depth**: Do anti-patterns explain the EXACT failure mode? \
+Not just "can cause issues" but "causes X because Y happens at Z time"
+
+NOW OUTPUT ONLY THE IMPROVEMENTS:
+
+For each gap you found, output in this format:
+
+## [Section Name] (deepened)
+
+[Improved/additional content for that section]
+
+RULES:
+- Only output sections that need improvement — skip sections that are already good
+- Add "(deepened)" suffix to section names so they can be merged
+- Be EXTREMELY specific — name APIs, callbacks, dispatchers, thread names
+- If you add a comparison, use a table
+- If you add timing, use the Enter/Recompose/Key/Leave format
+- Do NOT repeat content that's already good — only add what's missing
+- Start directly with the first section — no preamble
+"""
+
 # ---------------------------------------------------------------------------
 # Ollama HTTP call
 # ---------------------------------------------------------------------------
@@ -272,7 +325,60 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="http://localhost:11434",
         help="Base URL of the Ollama server (default: http://localhost:11434)",
     )
+    parser.add_argument(
+        "--passes",
+        type=int,
+        default=2,
+        choices=[1, 2, 3],
+        help="Number of passes: 1=generate only, 2=generate+review (default), 3=generate+review+review",
+    )
     return parser
+
+
+def merge_deepened_sections(current: str, deepened: str) -> str:
+    """Merge deepened sections into the current file.
+
+    For sections with "(deepened)" suffix, append content to the existing section.
+    For new sections, insert before Concepts.
+    """
+    import re as _re
+    # Find all ## Section (deepened) blocks
+    pattern = r"^## (.+?) \(deepened\)\s*\n(.*?)(?=^## |\Z)"
+    matches = list(_re.finditer(pattern, deepened, _re.MULTILINE | _re.DOTALL))
+
+    if not matches:
+        # No deepened sections found — treat as raw new content
+        return insert_new_sections(current, deepened)
+
+    result = current
+    for m in matches:
+        section_name = m.group(1).strip()
+        new_content = m.group(2).strip()
+        if not new_content:
+            continue
+
+        # Find the existing section in current file
+        section_header = f"## {section_name}"
+        idx = result.find(section_header)
+        if idx == -1:
+            # Section doesn't exist yet — insert before Concepts
+            anchor_idx = result.find(_SECTION_ANCHOR)
+            if anchor_idx == -1:
+                result = result.rstrip("\n") + f"\n\n{section_header}\n{new_content}\n"
+            else:
+                result = result[:anchor_idx].rstrip("\n") + f"\n\n{section_header}\n{new_content}\n\n" + result[anchor_idx:]
+        else:
+            # Find the end of this section (next ## or end of file)
+            next_section = result.find("\n## ", idx + len(section_header))
+            if next_section == -1:
+                # Append to end of file
+                result = result.rstrip("\n") + f"\n\n### Deepened\n{new_content}\n"
+            else:
+                # Insert before next section
+                insert_point = next_section
+                result = result[:insert_point].rstrip("\n") + f"\n\n### Deepened\n{new_content}\n" + result[insert_point:]
+
+    return result
 
 
 def main() -> None:
@@ -283,7 +389,8 @@ def main() -> None:
     print(f"[llm_summarizer] Reading: {args.input}")
     original_content = read_knowledge_file(args.input)
 
-    print(f"[llm_summarizer] Sending to Ollama model '{args.model}' at {args.ollama_url} ...")
+    # Pass 1: Generate semantic sections
+    print(f"[llm_summarizer] Pass 1/{ args.passes}: Generating semantic sections ...")
     prompt = _PROMPT_TEMPLATE.replace("{content}", original_content)
     new_sections = call_ollama(args.ollama_url, args.model, prompt)
 
@@ -292,15 +399,33 @@ def main() -> None:
         sys.exit(1)
 
     enhanced = insert_new_sections(original_content, new_sections)
+    added = count_sections_added(new_sections)
+    print(
+        f"[llm_summarizer] Pass 1 done: {len(added)} section(s) "
+        f"({', '.join(added) if added else 'none detected'})"
+    )
+
+    # Pass 2+: Review & Deepen
+    for pass_num in range(2, args.passes + 1):
+        print(f"[llm_summarizer] Pass {pass_num}/{args.passes}: Review & deepen ...")
+        review_prompt = _REVIEW_PROMPT_TEMPLATE.replace("{content}", enhanced)
+        deepened = call_ollama(args.ollama_url, args.model, review_prompt)
+
+        if deepened:
+            enhanced = merge_deepened_sections(enhanced, deepened)
+            # Count what was deepened
+            import re as _re
+            deepened_names = _re.findall(r"^## (.+?) \(deepened\)", deepened, _re.MULTILINE)
+            print(
+                f"[llm_summarizer] Pass {pass_num} done: deepened {len(deepened_names)} section(s) "
+                f"({', '.join(deepened_names) if deepened_names else 'raw additions'})"
+            )
+        else:
+            print(f"[llm_summarizer] Pass {pass_num}: no improvements returned")
 
     print(f"[llm_summarizer] Writing: {output_path}")
     write_knowledge_file(output_path, enhanced)
-
-    added = count_sections_added(new_sections)
-    print(
-        f"[llm_summarizer] Enhanced: added {len(added)} new section(s) "
-        f"({', '.join(added) if added else 'none detected in output'})"
-    )
+    print("[llm_summarizer] Done.")
 
 
 if __name__ == "__main__":
