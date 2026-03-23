@@ -23,7 +23,7 @@ from urllib.request import Request, urlopen
 # Constants
 # ---------------------------------------------------------------------------
 
-_TIMEOUT = 120  # seconds — LLM generation can be slow for large prompts
+_TIMEOUT = 600  # seconds — 32B models need 3-5 min for long prompts
 _SECTION_ANCHOR = "## Concepts (for graph)"
 _NEW_SECTION_NAMES = ["Mental Model", "Decision Framework", "Anti-Patterns", "Key Relationships"]
 
@@ -79,9 +79,9 @@ Concepts already in the file
 
 
 def call_ollama(base_url: str, model: str, prompt: str) -> str:
-    """POST to Ollama /api/generate and return the response text."""
+    """POST to Ollama /api/generate with streaming and return the full response text."""
     url = base_url.rstrip("/") + "/api/generate"
-    payload = json.dumps({"model": model, "prompt": prompt, "stream": False}).encode()
+    payload = json.dumps({"model": model, "prompt": prompt, "stream": True}).encode()
     req = Request(
         url,
         data=payload,
@@ -89,8 +89,7 @@ def call_ollama(base_url: str, model: str, prompt: str) -> str:
         method="POST",
     )
     try:
-        with urlopen(req, timeout=_TIMEOUT) as resp:
-            body = resp.read().decode("utf-8", errors="replace")
+        resp = urlopen(req, timeout=_TIMEOUT)
     except HTTPError as exc:
         if exc.code == 404:
             print(
@@ -111,23 +110,36 @@ def call_ollama(base_url: str, model: str, prompt: str) -> str:
         sys.exit(1)
     except TimeoutError:
         print(
-            f"[llm_summarizer] Timeout after {_TIMEOUT}s waiting for Ollama.\n"
-            f"  Try a smaller model or increase _TIMEOUT in the script.",
+            f"[llm_summarizer] Timeout connecting to Ollama.\n"
+            f"  Make sure Ollama is running: ollama serve",
             file=sys.stderr,
         )
         sys.exit(1)
 
+    # Read streaming response line by line
+    full_response = []
+    token_count = 0
     try:
-        data = json.loads(body)
-    except json.JSONDecodeError as exc:
-        print(f"[llm_summarizer] Unexpected response from Ollama (not JSON): {exc}", file=sys.stderr)
-        sys.exit(1)
-
-    if "error" in data:
-        print(f"[llm_summarizer] Ollama error: {data['error']}", file=sys.stderr)
-        sys.exit(1)
-
-    return data.get("response", "").strip()
+        for line in resp:
+            line = line.decode("utf-8", errors="replace").strip()
+            if not line:
+                continue
+            try:
+                chunk = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            text = chunk.get("response", "")
+            if text:
+                full_response.append(text)
+                token_count += 1
+                if token_count % 50 == 0:
+                    print(".", end="", flush=True, file=sys.stderr)
+            if chunk.get("done", False):
+                break
+    finally:
+        resp.close()
+    print(file=sys.stderr)  # newline after dots
+    return "".join(full_response).strip()
 
 
 # ---------------------------------------------------------------------------
@@ -219,7 +231,7 @@ def main() -> None:
     original_content = read_knowledge_file(args.input)
 
     print(f"[llm_summarizer] Sending to Ollama model '{args.model}' at {args.ollama_url} ...")
-    prompt = _PROMPT_TEMPLATE.format(content=original_content)
+    prompt = _PROMPT_TEMPLATE.replace("{content}", original_content)
     new_sections = call_ollama(args.ollama_url, args.model, prompt)
 
     if not new_sections:
