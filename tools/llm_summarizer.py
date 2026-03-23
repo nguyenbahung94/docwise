@@ -2,7 +2,7 @@
 """
 LLM summarizer for docwise plugin.
 Reads a raw knowledge file produced by doc_extractor.py and enhances it with
-semantic sections (Mental Model, Decision Framework, Anti-Patterns, Key
+semantic sections (Mental Model, Lifecycle & Timing, Decision Framework, Internal Composition, Cost & Performance, Anti-Patterns, Key
 Relationships) via a local Ollama model.
 
 Uses only Python stdlib + urllib — zero extra dependencies.
@@ -25,52 +25,105 @@ from urllib.request import Request, urlopen
 
 _TIMEOUT = 600  # seconds — 32B models need 3-5 min for long prompts
 _SECTION_ANCHOR = "## Concepts (for graph)"
-_NEW_SECTION_NAMES = ["Mental Model", "Decision Framework", "Anti-Patterns", "Key Relationships"]
+_NEW_SECTION_NAMES = [
+    "Mental Model", "Lifecycle & Timing", "Decision Framework",
+    "Internal Composition", "Cost & Performance", "Anti-Patterns", "Key Relationships",
+]
 
 _PROMPT_TEMPLATE = """\
-You are a senior Android developer analyzing extracted documentation.
+You are a staff-level Android engineer writing an internal knowledge base entry.
+Your audience is mid-level developers who can read API docs but need the \
+"why", "when", and "how things connect" that docs never spell out.
 
-Given this raw knowledge file (produced by a regex-based extractor), add the \
-following NEW sections. These sections capture semantic understanding that the \
-regex extractor cannot derive on its own.
-
---- KNOWLEDGE FILE START ---
+--- RAW EXTRACTED CONTENT ---
 {content}
---- KNOWLEDGE FILE END ---
+--- END ---
 
-Add ONLY these four new sections, in this order:
+The content above was mechanically extracted from official docs. It has code \
+and surface-level rules, but LACKS:
+- The mental model (why these APIs exist at all)
+- Lifecycle timing (exactly when each thing runs/cancels/restarts)
+- Direct comparisons (when to pick X over Y)
+- Composition relationships (X = Y + Z under the hood)
+- Architecture context (how this topic fits into app architecture)
+- Cost/performance implications (why something is expensive, what it allocates)
+- The anti-patterns that LOOK correct but break in subtle ways
+
+STEP 1 — Before writing, ask yourself these questions about the content:
+1. What PROBLEM does this topic solve? Why can't you just write normal code?
+2. For EACH API/concept mentioned: when exactly does it trigger, cancel, restart?
+3. Which APIs are commonly confused with each other? What's the difference?
+4. What is each API made of internally? (e.g. "X = Y + Z")
+5. What looks correct but is actually wrong? Why?
+6. How does this topic interact with the broader architecture (ViewModel, navigation, lifecycle)?
+7. What would a lifecycle/timing DIAGRAM look like?
+8. What are the performance costs? What gets allocated/tracked?
+
+STEP 2 — Now write these sections based on your answers:
 
 ## Mental Model
-Explain the conceptual framework:
-- WHY do these APIs exist? What problem do they solve?
-- How do they relate to each other? (e.g. "X is built on top of Y")
-- What is the key lifecycle insight a developer must internalize?
+- **The Problem**: What specific problem does this topic solve? (1-2 sentences, sharp)
+- **Core Insight**: The single most important thing to understand (1 sentence)
+- **Classification**: Group/categorize the APIs by their PURPOSE (not alphabetically):
+  - Category 1: [name] — APIs that do X
+  - Category 2: [name] — APIs that do Y
+- **Architecture Context**: How does this fit with ViewModel, Repository, Navigation?
+
+## Lifecycle & Timing
+Show EXACTLY when each API runs. Use this format:
+```
+Enter Composition
+  → [what starts]
+Recomposition
+  → [what runs]
+Key changes
+  → [what cancels, what restarts]
+Leave Composition
+  → [what cleans up]
+```
+Then for each API, one line: "API — triggers: X, cancels: Y, restarts when: Z"
 
 ## Decision Framework
-A table showing: given situation X, use API Y instead of Z.
-Format exactly as:
-| Situation | Use | Why |
-| --- | --- | --- |
-| ... | ... | ... |
+A comparison table. For EACH pair of similar APIs, explain the difference:
+| I need to... | Use | NOT | Because |
+| --- | --- | --- | --- |
+| [concrete scenario] | [correct API] | [wrong API] | [specific reason] |
+
+Include at least 5 rows covering real scenarios.
+
+## Internal Composition
+How APIs are built from each other:
+- "X = Y + Z" format
+- What this means practically (when knowing the internals helps you debug)
+
+## Cost & Performance
+For each API that has performance implications:
+- What it allocates/tracks internally
+- When it becomes expensive
+- How to minimize cost
 
 ## Anti-Patterns
-- When NOT to use each API
-- Common mistakes that go beyond the Pitfalls already listed above
-- Include a short Kotlin snippet for each anti-pattern where helpful
+For each anti-pattern:
+- **Name** (short, memorable)
+- **Looks like**: (the wrong code — short snippet)
+- **Why it breaks**: (specific, not vague)
+- **Fix**: (the correct code — short snippet)
+
+At least 3 anti-patterns. Focus on mistakes that LOOK correct.
 
 ## Key Relationships
-- List equivalences and compositions, e.g.:
-  - "produceState = LaunchedEffect + remember { mutableStateOf() }"
-  - "DisposableEffect = LaunchedEffect + onDispose cleanup"
-- Include any important ordering or dependency constraints between APIs
+- Equivalences: "X = Y + Z"
+- Dependencies: "X requires Y to work correctly"
+- Ordering: "X must happen before Y"
+- Conflicts: "Never use X together with Y because..."
 
-IMPORTANT RULES:
-- Output ONLY the four new sections above — nothing else
-- Do NOT repeat or summarise any Rules, Code Patterns, Pitfalls, Guidelines, or \
-Concepts already in the file
-- Be concise and actionable; prefer bullet points over long paragraphs
-- Use Kotlin code examples where they make a point clearer
-- Do not include a preamble or closing remarks — start directly with "## Mental Model"
+RULES:
+- Output ONLY the sections above — nothing else
+- Do NOT repeat Rules, Code Patterns, Pitfalls, or Guidelines from the input
+- Be SPECIFIC — no "ensure proper handling" or "be careful with lifecycle"
+- Every claim must be concrete: name the API, name the callback, name the dispatcher
+- Use Kotlin snippets only when they make the point clearer (max 5 lines each)
+- Start directly with "## Mental Model" — no preamble
 """
 
 # ---------------------------------------------------------------------------
