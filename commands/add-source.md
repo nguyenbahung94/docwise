@@ -58,12 +58,11 @@ Convert the topic to kebab-case lowercase. Examples:
 
 ### For doc sources:
 
-1. Spawn the `keyword-scanner` agent with:
-   - source_type: "doc"
-   - source_url: the provided URL
-   - source_topic: the --topic value (if provided)
-
-2. The agent returns keywords, suggested topic, and discovered sub-pages.
+1. Run the keyword scanner Python script (zero tokens, no LLM agent):
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/tools/keyword_scanner.py --doc "<url>" [--topic "<topic>"] --format json
+   ```
+   Parse the JSON output to get keywords, suggested topic, and discovered sub-pages.
 
 3. If sub-pages were found:
 
@@ -93,13 +92,11 @@ Convert the topic to kebab-case lowercase. Examples:
 
 ### For repo sources:
 
-1. Spawn the `keyword-scanner` agent with:
-   - source_type: "repo"
-   - source_url: the provided repo
-   - source_paths: default ["**/*.md", "**/*.kt", "**/build.gradle*"]
-   - source_topic: the --topic value (if provided)
-
-2. The agent returns keywords, suggested topic, and discovered directories.
+1. Run the keyword scanner Python script (zero tokens, no LLM agent):
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/tools/keyword_scanner.py --repo "<owner/name>" [--topic "<topic>"] [--paths "*.md,*.kt"] --format json
+   ```
+   Parse the JSON output to get keywords, suggested topic, and discovered directories.
 
 3. Present directories to the user:
    ```
