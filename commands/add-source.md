@@ -25,7 +25,11 @@ You are running the `/add-source` command for the docwise plugin.
    - It must be a valid URL starting with `http://`, `https://`, or `file://`
    - `file://` URLs are treated as local files (team priority by default)
 3. If `--repo` is provided, it must be in `owner/name` format
-4. Check `sources.yaml` for duplicates. If the source already exists, inform user and stop.
+4. Check `sources.yaml` for duplicates:
+   - Read all existing source entries
+   - For doc sources: normalize the URL before comparing (strip trailing slash, lowercase hostname, remove fragments like `#section`)
+   - For repo sources: compare `owner/name` case-insensitively
+   - If a match is found, inform user: "Source already exists: [url]. Use /remove-source first if you want to re-add it." and stop.
 
 ## Default priority
 
