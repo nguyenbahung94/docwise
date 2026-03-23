@@ -1,0 +1,15 @@
+{
+  "name": "docwise",
+  "owner": {
+    "name": "hungnguyenba94",
+    "email": "mr.hungcity@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "docwise",
+      "source": ".",
+      "description": "Gives AI up-to-date best practices from official docs, repos, and trusted sources.",
+      "version": "0.2.0"
+    }
+  ]
+}
