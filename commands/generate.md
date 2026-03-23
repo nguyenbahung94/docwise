@@ -82,7 +82,24 @@ You are running the `/generate` command for the buildSkillDocs plugin.
 
 7. Update `knowledge/index.md`: set Fresh column to `yes` for processed sources
 
-8. Report results:
+8. **Rebuild knowledge graph** (after all extractions complete):
+
+   Rebuild `knowledge/graph.yaml` from scratch:
+
+   a. Read ALL knowledge files in `knowledge/*/` directories
+   b. Parse the `## Concepts (for graph)` section from each file
+   c. Build nodes: each unique concept becomes a node, with `files` listing all knowledge files that mention it
+   d. Build edges: each relationship becomes an edge with `from`, `to`, `relation`
+   e. Merge: if multiple sources define the same edge, keep it (note both sources)
+   f. Conflict: if sources contradict (A→B "uses" vs A→B "replaces"), higher priority source wins
+   g. Validate:
+      - Remove nodes that reference knowledge files that don't exist
+      - Warn about orphan nodes (no edges) but keep them
+   h. Write the rebuilt `knowledge/graph.yaml`
+
+   The graph is ALWAYS rebuilt from scratch — never patched. This ensures deleted sources have their nodes removed.
+
+9. Report results:
    ```
    Generated knowledge for N sources:
      - [extracted] architecture/android-architecture.md (12 rules, 4 patterns)
