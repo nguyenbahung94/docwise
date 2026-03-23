@@ -17,26 +17,36 @@ Read `knowledge/index.md` from the plugin directory.
 
 If `sources.yaml` has no `project.file_patterns` configured, check if the current file extension matches any known pattern. If not, exit silently.
 
-## Step 2: Match keywords
+## Step 2: Match concepts via graph
 
-Look at the current task — what code is being written or modified? Match against the Keywords column.
+Read `knowledge/graph.yaml` from the plugin directory.
 
-If no keywords match, exit silently.
+Look at the current task — what code is being written or modified? Match against concept nodes in the graph:
+- If the user is writing a ViewModel → match "ViewModel" node
+- If working with Room → match "Room" node
+- If using coroutines → match "StateFlow", "Flow", "suspend" nodes
 
-## Step 3: Load knowledge files (priority-weighted, max 3)
+If `graph.yaml` doesn't exist or is empty, fall back to keyword matching via `knowledge/index.md`.
 
-For each matched topic:
-1. Find all knowledge files in `knowledge/<topic>/` directory
-2. Read each file's metadata header to get Priority
-3. Sort by priority: official > team > reference > community
-4. Load the top 3 files maximum
+If no concepts match, this skill has nothing to contribute — exit silently.
 
-**Loading priority:**
-1. Always load the `official` file first (highest authority)
-2. Load `team` file if exists (company-specific supplements)
-3. Load `reference` or verified `community` file if keywords strongly match
+## Step 3: Traverse graph and load knowledge files (max 3)
 
-**Budget cap: max 3 files loaded per task.**
+From each matched concept node, traverse up to 2 hops:
+- 1st hop: directly connected concepts
+- 2nd hop: concepts connected to 1st-hop concepts
+
+Example: "ViewModel" matched →
+  1st hop: StateFlow, UseCase, Hilt
+  2nd hop: Repository (via UseCase), LiveData (via StateFlow)
+
+Collect all knowledge files referenced by traversed nodes (from the `files` field in graph.yaml).
+
+Sort collected files by priority: official > team > reference > community.
+
+Load the top 3 files maximum.
+
+If a file is from a community source, check its verification status in the metadata header.
 
 ## Step 4: Check freshness (never block)
 
