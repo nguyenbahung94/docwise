@@ -513,11 +513,8 @@ class KnowledgeBuilder:
         if k in self._seen:
             return
         self._seen.add(k)
-        # Auto-detect DON'T vs DO from code comments
-        if "DON'T" in code or "DO NOT" in code or "DONT" in code:
-            name = f"[DON'T] {name}"
-        elif name.startswith("["):
-            pass  # already tagged
+        # Don't double-tag if process_blocks already tagged it
+        pass
         self.code_patterns.append({"name": name[:80], "code": code})
 
     def add_pitfall(self, text: str, why: str = "") -> None:
@@ -613,10 +610,19 @@ class KnowledgeBuilder:
 
             if btype == "code":
                 name = last_heading or "Code example"
-                if re.search(r"\bbefore\b|\bold\s+way\b|\bdon.?t\b", last_heading, re.IGNORECASE):
-                    self.add_code(f"[Before] {name}", text)
-                elif re.search(r"\bafter\b|\bnew\s+way\b|\bcorrect\b|\bdo\s+this\b", last_heading, re.IGNORECASE):
-                    self.add_code(f"[After] {name}", text)
+                # Check heading OR code content for DON'T/DO tags
+                is_dont = bool(
+                    re.search(r"\bbefore\b|\bold\s+way\b|\bdon.?t\b", last_heading, re.IGNORECASE)
+                    or re.search(r"//\s*DON[\u2019']?T\b|//\s*DO\s+NOT\b|//\s*AVOID\b|//\s*BAD\b|//\s*WRONG\b", text)
+                )
+                is_do = bool(
+                    re.search(r"\bafter\b|\bnew\s+way\b|\bcorrect\b|\bdo\s+this\b", last_heading, re.IGNORECASE)
+                    or re.search(r"//\s*DO\s+THIS\b|//\s*CORRECT\b|//\s*GOOD\b|//\s*RIGHT\b", text)
+                )
+                if is_dont:
+                    self.add_code(f"[DON'T] {name}", text)
+                elif is_do:
+                    self.add_code(f"[DO] {name}", text)
                 else:
                     self.add_code(name, text)
                 continue
