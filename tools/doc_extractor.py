@@ -507,10 +507,17 @@ class KnowledgeBuilder:
         code = code.strip()
         if len(code) < 10:
             return
-        k = code[:60]
+        # Use hash of full code to avoid dropping DO/DON'T pairs with same prefix
+        import hashlib
+        k = hashlib.md5(code.encode()).hexdigest()
         if k in self._seen:
             return
         self._seen.add(k)
+        # Auto-detect DON'T vs DO from code comments
+        if "DON'T" in code or "DO NOT" in code or "DONT" in code:
+            name = f"[DON'T] {name}"
+        elif name.startswith("["):
+            pass  # already tagged
         self.code_patterns.append({"name": name[:80], "code": code})
 
     def add_pitfall(self, text: str, why: str = "") -> None:
