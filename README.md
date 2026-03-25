@@ -40,15 +40,63 @@ claude plugin add nguyenbahung94/docwise
 
 That's it. No LLM, no API tokens, no generation needed. The Android profile ships with **25 pre-built knowledge files** covering Kotlin, Coroutines, Compose, Room, Hilt, Navigation, and more — ready to use immediately.
 
-### Optional: Regenerate or enhance
+### Adding new sources
+
+When you add a new doc source, you need to extract knowledge from it:
 
 ```bash
-# Regenerate knowledge from scratch (Python only, ~2 min, 0 tokens)
-bash tools/batch_generate.sh --no-enhance
+# 1. Add the source
+/add-source --doc "https://developer.android.com/some/new/page"
 
-# Enhance with local LLM for deeper analysis (requires Ollama + qwen2.5:14b)
-bash tools/batch_generate.sh
+# 2. Generate knowledge (Python-only, fast, 0 tokens)
+python3 tools/topic_extractor.py --url "https://..." --topic my-topic --output knowledge/my-topic --no-subpages
 ```
+
+This works out of the box — Python extracts rules, code patterns, DO/DON'T pairs directly from HTML.
+
+### Enhancing with local LLM (recommended)
+
+For deeper analysis (mental models, core concepts, cross-references), use a local LLM. This adds a 4-pass review: Generate → Self-check → Fix → Verify. **0 API tokens** — runs entirely on your machine.
+
+**Setup Ollama + Qwen (one-time):**
+
+```bash
+# 1. Install Ollama
+brew install ollama
+
+# 2. Start Ollama service
+ollama serve
+
+# 3. Pull the model (~9GB, needs 16GB+ RAM)
+ollama pull qwen2.5:14b
+```
+
+**Generate with LLM enhancement:**
+
+```bash
+# Single topic
+python3 tools/topic_extractor.py \
+  --url "https://developer.android.com/some/page" \
+  --topic my-topic \
+  --output knowledge/my-topic \
+  --enhance --model qwen2.5:14b
+
+# All topics (batch)
+bash tools/batch_generate.sh
+
+# All topics without LLM (fast, ~2 min)
+bash tools/batch_generate.sh --no-enhance
+```
+
+**What the LLM adds:**
+| Without LLM | With LLM |
+|-------------|----------|
+| Rules, code patterns, DO/DON'T | + Core Concepts section |
+| Guidelines from docs | + Mental Model section |
+| Raw pitfalls | + Common Mistakes with corrections |
+| Concept list | + Key Relationships between concepts |
+
+> **Note:** The 25 pre-built Android knowledge files already include LLM enhancement. You only need Ollama when adding new sources.
 
 ## How It Works
 
