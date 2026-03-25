@@ -1,0 +1,999 @@
+nodes:
+  - name: "<!-- Quality Report"
+    topics: ["android-lifecycle", "app-compatibility", "compose-compositionlocal", "compose-kotlin", "compose-layering", "compose-lifecycle", "compose-navigation", "compose-performance", "compose-phases", "compose-side-effects", "compose-state", "hilt", "jetpack-compose", "kotlin-coroutines", "kotlin-flow", "kotlin-ksp", "location", "material-design-3", "permissions", "room"]
+    files: ["android-lifecycle/android-lifecycle.md", "app-compatibility/app-compatibility.md", "compose-compositionlocal/compose-compositionlocal.md", "compose-kotlin/compose-kotlin.md", "compose-layering/compose-layering.md", "compose-lifecycle/compose-lifecycle.md", "compose-navigation/compose-navigation.md", "compose-performance/compose-performance.md", "compose-phases/compose-phases.md", "compose-side-effects/compose-side-effects.md", "compose-state/compose-state.md", "hilt/hilt.md", "jetpack-compose/jetpack-compose.md", "kotlin-coroutines/kotlin-coroutines.md", "kotlin-flow/kotlin-flow.md", "kotlin-ksp/kotlin-ksp.md", "location/location.md", "material-design-3/material-design-3.md", "permissions/permissions.md", "room/room.md"]
+  - name: "ADB"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "Accelerate development"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Activity"
+    topics: ["location"]
+    files: ["location/location.md"]
+  - name: "Adaptive layouts"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Add extra information to help smart recompositions"
+    topics: ["compose-lifecycle"]
+    files: ["compose-lifecycle/compose-lifecycle.md"]
+  - name: "Add maps to your app"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Add the kotlinx.coroutines library to your project"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Adding dependencies"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Additional Resources"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Additional references"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Additional resources"
+    topics: ["android", "android-lifecycle", "data-storage", "location", "room"]
+    files: ["android-lifecycle/android-lifecycle.md", "android/location.md", "data-storage/data-storage.md", "location/location.md", "room/room.md"]
+  - name: "Alternative APIs"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Anatomy of a composable in Composition"
+    topics: ["compose-lifecycle"]
+    files: ["compose-lifecycle/compose-lifecycle.md"]
+  - name: "Animations and transitions:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "App compatibility in Android"
+    topics: ["android"]
+    files: ["android/app-compatibility.md"]
+  - name: "App composition"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "App performance guide"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "App startup :"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "App-specific storage:"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Asynchronous Flow"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Asynchronous work"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Automatic"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Avoid backwards writes"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Back and up:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Background tasks overview"
+    topics: ["android"]
+    files: ["android/background-tasks.md"]
+  - name: "Baseline profiles :"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Benchmarking :"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Benefits and features"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Best practices for lifecycle-aware components"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Blogs"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Build an adaptive navigation bar and navigation rail"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Build better apps faster with Jetpack Compose"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Build location-aware apps"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Categories of storage locations"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Caution"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Caution:"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Changes for all apps"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Choose the right option"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Choosing between a service and a thread"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Codelabs"
+    topics: ["android", "android-lifecycle", "location", "room"]
+    files: ["android-lifecycle/android-lifecycle.md", "android/location.md", "location/location.md", "room/room.md"]
+  - name: "Color scheme"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Common architectural principles"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Compatibility framework tools"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Component"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Component lifetimes"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Component scopes"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Composable"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Compose"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Composition"
+    topics: ["compose-compositionlocal", "compose-phases"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md", "compose-phases/compose-phases.md"]
+  - name: "Composition:"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Consuming the CompositionLocal"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Control"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "Coroutine builder functions"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Coroutine scope and structured concurrency"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "CoroutineScope -> Job (manages lifecycle via)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "Coroutines basics"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Coroutines guide"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Create a CompositionLocal"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Create a NavController"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Create a NavHost"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Create a coroutine scope with the coroutineScope() function"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Create your first coroutines"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Create your own CompositionLocal"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Creating a started service"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Current Location"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Customization"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "Data access object (DAO)"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Data entity"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Database"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Databases:"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Decide own size"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Decide whether to use CompositionLocal"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Declaring a service in the manifest"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Deep linking:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Deep links"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Default Enabled Changes"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "Default arguments"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Defer reads as long as possible"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Define Hilt bindings"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Define composable parameters"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Delegated properties"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Dependency"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Design principles"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "Destructuring data classes"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Development resources"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Display state"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "DisposableEffect"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "DisposableEffect : effects that require cleanup"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "Does the task need to continue running while the app is in the background?"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Drawing"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Drive UI from data models"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Enabled for targetSdkVersion >=33"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "Encapsulated:"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Event"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Events in Compose"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Example"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Experimental APIs"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Expose events from your composables"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Extending the Service class"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "External storage directories:"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Extract coroutine builders from the coroutine scope"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Figure 1"
+    topics: ["android", "background-work", "material-design-3"]
+    files: ["android/background-tasks.md", "background-work/background-work.md", "material-design-3/material-design-3.md"]
+  - name: "Figure 1."
+    topics: ["android", "android-lifecycle", "app-compatibility", "compose-architecture", "compose-compositionlocal", "compose-layering", "compose-lifecycle", "compose-phases", "permissions", "room"]
+    files: ["android-lifecycle/android-lifecycle.md", "android/overview.md", "app-compatibility/app-compatibility.md", "compose-architecture/compose-architecture.md", "compose-compositionlocal/compose-compositionlocal.md", "compose-layering/compose-layering.md", "compose-lifecycle/compose-lifecycle.md", "compose-phases/compose-phases.md", "permissions/permissions.md", "room/room.md"]
+  - name: "Figure 2"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Figure 2."
+    topics: ["android", "compose-lifecycle", "compose-phases", "permissions"]
+    files: ["android/overview.md", "compose-lifecycle/compose-lifecycle.md", "compose-phases/compose-phases.md", "permissions/permissions.md"]
+  - name: "Figure 3"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Figure 3."
+    topics: ["android", "compose-lifecycle", "compose-phases", "permissions"]
+    files: ["android/overview.md", "compose-lifecycle/compose-lifecycle.md", "compose-phases/compose-phases.md", "permissions/permissions.md"]
+  - name: "Figure 4"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Figure 4."
+    topics: ["compose-lifecycle", "compose-phases"]
+    files: ["compose-lifecycle/compose-lifecycle.md", "compose-phases/compose-phases.md"]
+  - name: "Figure 5"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Figure 5."
+    topics: ["compose-lifecycle"]
+    files: ["compose-lifecycle/compose-lifecycle.md"]
+  - name: "Figure 6"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Figure 6."
+    topics: ["compose-lifecycle"]
+    files: ["compose-lifecycle/compose-lifecycle.md"]
+  - name: "Figure 7"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Flow"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Flow -> StateFlow (cold-to-hot conversion via stateIn)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "Flow -> flowOn (changes upstream dispatcher via)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "Flow builders"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Flow cancellation basics"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Flows"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Flows are cold"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Foreground services"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Fragment transactions:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Fragments"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Functions"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Generated components for Android classes"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Geofencing"
+    topics: ["location"]
+    files: ["location/location.md"]
+  - name: "Get started"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Handling lifecycles with lifecycle-aware components"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Handling on stop events"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Higher-order functions and lambda expressions"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Hilt application class"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Hilt modules"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "How KSP looks at source files"
+    topics: ["kotlin-ksp"]
+    files: ["kotlin-ksp/kotlin-ksp.md"]
+  - name: "How to identify which changes are enabled"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "Identify enabled changes using developer options"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "Implementing a custom LifecycleOwner"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Important:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Initial composition:"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Inject dependencies into Android classes"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Inject instances with @Provides"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Inject interface instances with @Binds"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Injection"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Inspect Performance :"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Install-time permissions"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "Intermediate flow operators"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Internal storage directories:"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Interoperability"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Introduction to CompositionLocal"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Intuitive"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Is it a short, critical task?"
+    topics: ["background-work"]
+    files: ["background-work/background-work.md"]
+  - name: "Java"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Jetpack"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Key Point:"
+    topics: ["compose-architecture", "compose-lifecycle", "compose-side-effects", "compose-state"]
+    files: ["compose-architecture/compose-architecture.md", "compose-lifecycle/compose-lifecycle.md", "compose-side-effects/compose-side-effects.md", "compose-state/compose-state.md"]
+  - name: "Key Term:"
+    topics: ["android", "background-work", "compose-lifecycle", "compose-side-effects", "compose-state"]
+    files: ["android/background-tasks.md", "background-work/background-work.md", "compose-lifecycle/compose-lifecycle.md", "compose-side-effects/compose-side-effects.md", "compose-state/compose-state.md"]
+  - name: "Key concepts"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Key terms:"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Kotlin"
+    topics: ["android"]
+    files: ["android/navigate.md", "android/services.md"]
+  - name: "Kotlin Help"
+    topics: ["kotlin-coroutines", "kotlin-flow", "kotlin-ksp"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md", "kotlin-flow/kotlin-flow.md", "kotlin-ksp/kotlin-ksp.md"]
+  - name: "Kotlin Symbol Processing API"
+    topics: ["kotlin-ksp"]
+    files: ["kotlin-ksp/kotlin-ksp.md"]
+  - name: "Kotlin coroutines"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Latest news"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "LaunchedEffect : run suspend functions in the scope of a composable"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "Layers"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "Layout"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Learn more"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "Less code"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Lifecycle"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Lifecycle overview"
+    topics: ["compose-lifecycle"]
+    files: ["compose-lifecycle/compose-lifecycle.md"]
+  - name: "LifecycleOwner"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Location Permissions"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Material You is available for Compose"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Material theming"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "Measure children"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Multiple form factors"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Mutex -> synchronized (replaces in coroutine context)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "Navigate"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Navigate from Compose with Navigation for fragments"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Navigate to a composable"
+    topics: ["android", "compose-navigation"]
+    files: ["android/navigate.md", "compose-navigation/compose-navigation.md"]
+  - name: "Navigate to a destination"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Navigate using NavDeepLinkRequest"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Navigate using integer ID"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Navigate with arguments"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Nested Navigation"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "New to Android Development?"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Note"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Note:"
+    topics: ["android"]
+    files: ["android/background-tasks.md", "android/navigate.md", "android/overview.md", "android/services.md"]
+  - name: "Now in Android App Sample"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Observable"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Optimize power usage"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Other supported types of state"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Part of Android Jetpack ."
+    topics: ["android-lifecycle", "room"]
+    files: ["android-lifecycle/android-lifecycle.md", "room/room.md"]
+  - name: "Permission groups"
+    topics: ["permissions"]
+    files: ["permissions/permissions.md"]
+  - name: "Permissions"
+    topics: ["location"]
+    files: ["location/location.md"]
+  - name: "Permissions and access to external storage"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Permissions on Android"
+    topics: ["android"]
+    files: ["android/overview.md"]
+  - name: "Picking the right abstraction"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "Place children"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Platform releases"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Powerful"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Predefined qualifiers in Hilt"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Preferences:"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Primary components"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Provide multiple bindings for the same type"
+    topics: ["hilt"]
+    files: ["hilt/hilt.md"]
+  - name: "Provide values to a CompositionLocal"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Quick Tutorial"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Receive location updates"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Recommended app architecture"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Recommended for you"
+    topics: ["compose-kotlin", "compose-layering", "compose-performance"]
+    files: ["compose-kotlin/compose-kotlin.md", "compose-layering/compose-layering.md", "compose-performance/compose-performance.md"]
+  - name: "Recomposition:"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Representing multiple values"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Request the proper permissions"
+    topics: ["android", "location"]
+    files: ["android/location.md", "location/location.md"]
+  - name: "Resource constraints"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Resources"
+    topics: ["kotlin-ksp"]
+    files: ["kotlin-ksp/kotlin-ksp.md"]
+  - name: "Restarting effects"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "Restricted actions"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "Restricted data"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "Restrictions on non-SDK interfaces"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Retrieve complex data when navigating"
+    topics: ["compose-navigation"]
+    files: ["compose-navigation/compose-navigation.md"]
+  - name: "Runtime permissions"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "Sample apps"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Sample implementation"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Samples"
+    topics: ["android", "android-lifecycle", "location", "room"]
+    files: ["android-lifecycle/android-lifecycle.md", "android/location.md", "location/location.md", "room/room.md"]
+  - name: "Save and categorize content based on your preferences."
+    topics: ["android"]
+    files: ["android/app-compatibility.md", "android/background-tasks.md", "android/navigate.md", "android/overview.md", "android/services.md"]
+  - name: "Save data in a local database using Room"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Scoped storage"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "Scopes and receivers"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Separation of concerns"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Sequences"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Services"
+    topics: ["location"]
+    files: ["location/location.md"]
+  - name: "Services overview"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Setup"
+    topics: ["compose-navigation", "room"]
+    files: ["compose-navigation/compose-navigation.md", "room/room.md"]
+  - name: "Shared storage:"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "SideEffect : publish Compose state to non-Compose code"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "Single source of truth"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Single source of truth:"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Singleton objects"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Size-limiting operators"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Skipping if the inputs haven't changed"
+    topics: ["compose-lifecycle"]
+    files: ["compose-lifecycle/compose-lifecycle.md"]
+  - name: "Special app access"
+    topics: ["permissions"]
+    files: ["permissions/permissions.md"]
+  - name: "Special permissions"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "State and composition"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "State and effect use cases"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "State encapsulation"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "State hoisting"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "State in composables"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Stateful versus stateless"
+    topics: ["compose-state"]
+    files: ["compose-state/compose-state.md"]
+  - name: "Stay organized with collections"
+    topics: ["android"]
+    files: ["android/app-compatibility.md", "android/background-tasks.md", "android/navigate.md", "android/overview.md", "android/services.md"]
+  - name: "SupervisorJob -> Job (replaces for child-failure isolation)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "Supported libraries"
+    topics: ["kotlin-ksp"]
+    files: ["kotlin-ksp/kotlin-ksp.md"]
+  - name: "Suspending functions"
+    topics: ["kotlin-coroutines", "kotlin-flow"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md", "kotlin-flow/kotlin-flow.md"]
+  - name: "SymbolProcessorProvider: the entry point"
+    topics: ["kotlin-ksp"]
+    files: ["kotlin-ksp/kotlin-ksp.md"]
+  - name: "Table of contents"
+    topics: ["kotlin-coroutines"]
+    files: ["kotlin-coroutines/kotlin-coroutines.md"]
+  - name: "Targeted changes"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Task scheduling APIs"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Tasks initiated by the user"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Terminology"
+    topics: ["android", "background-work"]
+    files: ["android/background-tasks.md", "background-work/background-work.md"]
+  - name: "Testability"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Testing"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "The Composition"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "The basics"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "The three phases of a frame"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Trailing lambdas"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Transform operator"
+    topics: ["kotlin-flow"]
+    files: ["kotlin-flow/kotlin-flow.md"]
+  - name: "Type safety:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Type-safe builders and DSLs"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "Types of Services"
+    topics: ["android"]
+    files: ["android/services.md"]
+  - name: "Types of permissions"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "Types of platform behavior changes"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Typical → cases (uses)"
+    topics: ["kotlin-ksp"]
+    files: ["kotlin-ksp/kotlin-ksp.md"]
+  - name: "Typography"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "UI consistency"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "UI hierarchy"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "UI layer:"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "UI patterns:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "UI tree"
+    topics: ["compose-compositionlocal"]
+    files: ["compose-compositionlocal/compose-compositionlocal.md"]
+  - name: "Understand the phases"
+    topics: ["compose-phases"]
+    files: ["compose-phases/compose-phases.md"]
+  - name: "Unidirectional data flow"
+    topics: ["android-architecture", "compose-architecture"]
+    files: ["android-architecture/android-architecture.md", "compose-architecture/compose-architecture.md"]
+  - name: "Unidirectional data flow in Jetpack Compose"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Update state"
+    topics: ["compose-architecture"]
+    files: ["compose-architecture/compose-architecture.md"]
+  - name: "Usage"
+    topics: ["room"]
+    files: ["room/room.md"]
+  - name: "Use a NavController"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Use cases for lifecycle-aware components"
+    topics: ["android-lifecycle"]
+    files: ["android-lifecycle/android-lifecycle.md"]
+  - name: "Use derivedStateOf to limit recompositions"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Use lazy layout keys"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Use remember to minimize expensive calculations"
+    topics: ["compose-performance"]
+    files: ["compose-performance/compose-performance.md"]
+  - name: "Variable launch conditions"
+    topics: ["android-architecture"]
+    files: ["android-architecture/android-architecture.md"]
+  - name: "Videos"
+    topics: ["data-storage", "jetpack-compose"]
+    files: ["data-storage/data-storage.md", "jetpack-compose/jetpack-compose.md"]
+  - name: "View files on a device"
+    topics: ["data-storage"]
+    files: ["data-storage/data-storage.md"]
+  - name: "ViewModel support:"
+    topics: ["navigation"]
+    files: ["navigation/navigation.md"]
+  - name: "Want to learn Compose?"
+    topics: ["jetpack-compose"]
+    files: ["jetpack-compose/jetpack-compose.md"]
+  - name: "Warning:"
+    topics: ["android"]
+    files: ["android/navigate.md"]
+  - name: "Why app compatibility is important"
+    topics: ["android", "app-compatibility"]
+    files: ["android/app-compatibility.md", "app-compatibility/app-compatibility.md"]
+  - name: "Will there be a bad user experience if the task is deferred or interrupted?"
+    topics: ["background-work"]
+    files: ["background-work/background-work.md"]
+  - name: "Workflow for using permissions"
+    topics: ["android", "permissions"]
+    files: ["android/overview.md", "permissions/permissions.md"]
+  - name: "async -> Deferred (returns)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "can → the (uses)"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "care"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "cleanup"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "derivedStateOf : convert one or multiple state objects into another state"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "flatMapLatest -> Flow (cancels previous inner flow in)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "function → default (uses)"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "launch -> Job (returns)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "libraries → default (uses)"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "might → the (uses)"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "must"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "of"
+    topics: ["material-design-3"]
+    files: ["material-design-3/material-design-3.md"]
+  - name: "often → best (implements)"
+    topics: ["compose-layering"]
+    files: ["compose-layering/compose-layering.md"]
+  - name: "produceState : convert non-Compose state into Compose state"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "proper"
+    topics: ["kotlin-flow", "material-design-3"]
+    files: ["kotlin-flow/kotlin-flow.md", "material-design-3/material-design-3.md"]
+  - name: "snapshotFlow : convert Compose's State into Flows"
+    topics: ["compose-side-effects"]
+    files: ["compose-side-effects/compose-side-effects.md"]
+  - name: "supervisorScope -> coroutineScope (replaces for child-failure isolation)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+  - name: "to"
+    topics: ["compose-kotlin"]
+    files: ["compose-kotlin/compose-kotlin.md"]
+  - name: "tools"
+    topics: ["app-compatibility"]
+    files: ["app-compatibility/app-compatibility.md"]
+  - name: "withContext -> Dispatchers (switches thread pool via)"
+    topics: ["android"]
+    files: ["android/kotlin-coroutines.md"]
+
+edges:
+  - from: "Testing"
+    to: "ADB"
+    relation: "require"
+    source: "app-compatibility/app-compatibility.md"
+  - from: "must"
+    to: "tools"
+    relation: "use"
+    source: "app-compatibility/app-compatibility.md"
+  - from: "Composable"
+    to: "Automatic"
+    relation: "built on"
+    source: "compose-architecture/compose-architecture.md"
+  - from: "to"
+    to: "Jetpack"
+    relation: "use"
+    source: "compose-kotlin/compose-kotlin.md"
+  - from: "Customization"
+    to: "care"
+    relation: "require"
+    source: "compose-layering/compose-layering.md"
+  - from: "DisposableEffect"
+    to: "cleanup"
+    relation: "require"
+    source: "compose-side-effects/compose-side-effects.md"
+  - from: "Injection"
+    to: "Component"
+    relation: "require"
+    source: "hilt/hilt.md"
+  - from: "Functions"
+    to: "Observable"
+    relation: "require"
+    source: "jetpack-compose/jetpack-compose.md"
+  - from: "Flow"
+    to: "proper"
+    relation: "require"
+    source: "kotlin-flow/kotlin-flow.md"
+  - from: "Permissions"
+    to: "Services"
+    relation: "require"
+    source: "location/location.md"
+  - from: "Geofencing"
+    to: "Activity"
+    relation: "require"
+    source: "location/location.md"
+  - from: "proper"
+    to: "of"
+    relation: "use"
+    source: "material-design-3/material-design-3.md"

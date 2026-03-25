@@ -443,7 +443,10 @@ _NOISE_GUIDELINES = re.compile(
     r")"
     r"|\d{4}-\d{2}-\d{2}\s+utc\.?"   # bare date lines
     r"|\bLast\s+updated\b"
-    r"|\bContent\s+and\s+code\s+samples\s+on\s+this\s+page\b",
+    r"|\bContent\s+and\s+code\s+samples\s+on\s+this\s+page\b"
+    r"|\d+\s*\[AWT-"                # Java log output from tutorial samples
+    r"|\bINFO\s+\w+\s*-\s*\w+:"    # log lines like "INFO Contributors - kotlin:"
+    r"|\bloaded\s+\d+\s+(?:repos|contributors)\b",
     re.IGNORECASE,
 )
 
@@ -580,9 +583,29 @@ class KnowledgeBuilder:
     def has_content(self) -> bool:
         return bool(self.rules or self.code_patterns or self.pitfalls or self.decision_tables or self.guidelines)
 
+    @staticmethod
+    def _prescan_heading_pairs(blocks: List[Dict], heading_code_count: Dict[str, int]) -> None:
+        """Pre-scan blocks to find headings with exactly 2 code blocks (implicit DON'T/DO pairs)."""
+        cur_heading = ""
+        counts: Dict[str, int] = {}
+        for block in blocks:
+            if block["type"] == "heading":
+                cur_heading = block.get("text", "").strip()
+            elif block["type"] == "code" and cur_heading:
+                counts[cur_heading] = counts.get(cur_heading, 0) + 1
+        # Only mark headings with exactly 2 code blocks as implicit pairs
+        for heading, count in counts.items():
+            if count == 2:
+                heading_code_count[heading] = 2
+
     def process_blocks(self, blocks: List[Dict]) -> None:
         last_heading = ""
         last_heading_level = 0
+        last_was_dont = False
+        # Track headings that have multiple code blocks (DON'T/DO pairs)
+        heading_code_count: Dict[str, int] = {}
+        # Pre-scan: count code blocks per heading to detect implicit pairs
+        self._prescan_heading_pairs(blocks, heading_code_count)
 
         for i, block in enumerate(blocks):
             btype = block["type"]
@@ -591,6 +614,7 @@ class KnowledgeBuilder:
             if btype == "heading":
                 last_heading = text
                 last_heading_level = block.get("level", 2)
+                last_was_dont = False
                 # Extract heading as a concept
                 if last_heading_level <= 3 and text:
                     self.add_concept(text)
@@ -621,10 +645,32 @@ class KnowledgeBuilder:
                 )
                 if is_dont:
                     self.add_code(f"[DON'T] {name}", text)
+                    last_was_dont = True
                 elif is_do:
                     self.add_code(f"[DO] {name}", text)
+                    last_was_dont = False
                 else:
-                    self.add_code(name, text)
+                    # If previous code block under same heading was DON'T, this is the DO
+                    if last_was_dont:
+                        self.add_code(f"[DO] {name}", text)
+                        last_was_dont = False
+                    # Implicit pair: heading appears with exactly 2 code blocks
+                    elif name in heading_code_count:
+                        # Track which block we're on using seen counter
+                        seen_key = f"_seen_{name}"
+                        seen = heading_code_count.get(seen_key, 0)
+                        heading_code_count[seen_key] = seen + 1
+                        if seen == 0:
+                            # First code block under a paired heading = DON'T
+                            self.add_code(f"[DON'T] {name}", text)
+                            last_was_dont = True
+                        else:
+                            # Second code block = DO
+                            self.add_code(f"[DO] {name}", text)
+                            last_was_dont = False
+                    else:
+                        self.add_code(name, text)
+                        last_was_dont = False
                 continue
 
             if btype == "table":

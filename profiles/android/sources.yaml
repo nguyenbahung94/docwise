@@ -6,57 +6,154 @@ project:
 sources:
   - type: doc
     url: "https://developer.android.com/topic/architecture"
-    topics: [architecture]
+    topics: [android-architecture]
     priority: official
     ttl_days: 30
-    last_synced: null
-    extracted: false
+    extracted: true
 
   - type: doc
-    url: "https://developer.android.com/kotlin/coroutines"
-    topics: [concurrency]
+    url: "https://developer.android.com/topic/libraries/architecture/lifecycle"
+    topics: [android-lifecycle]
     priority: official
     ttl_days: 30
-    last_synced: null
-    extracted: false
+    extracted: true
 
   - type: doc
-    url: "https://developer.android.com/topic/libraries/architecture/workmanager"
-    topics: [background-work]
+    url: "https://developer.android.com/training/dependency-injection/hilt-android"
+    topics: [hilt]
     priority: official
     ttl_days: 30
-    last_synced: null
-    extracted: false
+    extracted: true
+
+  - type: doc
+    url: "https://kotlinlang.org/docs/coroutines-guide.html"
+    topics: [kotlin-coroutines]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://kotlinlang.org/docs/flow.html"
+    topics: [kotlin-flow]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/state"
+    topics: [compose-state]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/lifecycle"
+    topics: [compose-lifecycle]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/side-effects"
+    topics: [compose-side-effects]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/phases"
+    topics: [compose-phases]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/compositionlocal"
+    topics: [compose-compositionlocal]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/navigation"
+    topics: [compose-navigation]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/performance/bestpractices"
+    topics: [compose-performance]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose"
+    topics: [jetpack-compose]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/ui/compose/designsystems/material3"
+    topics: [material-design-3]
+    priority: official
+    ttl_days: 30
+    extracted: true
 
   - type: doc
     url: "https://developer.android.com/training/data-storage/room"
-    topics: [data-persistence]
+    topics: [room]
     priority: official
     ttl_days: 30
-    last_synced: null
-    extracted: false
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/training/data-storage"
+    topics: [data-storage]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/develop/background-work/background-tasks"
+    topics: [background-work]
+    priority: official
+    ttl_days: 30
+    extracted: true
 
   - type: doc
     url: "https://developer.android.com/guide/navigation"
     topics: [navigation]
     priority: official
     ttl_days: 30
-    last_synced: null
-    extracted: false
+    extracted: true
 
   - type: doc
-    url: "https://dagger.dev/hilt/quick-start"
-    topics: [dependency-injection]
+    url: "https://developer.android.com/guide/topics/permissions/overview"
+    topics: [permissions]
     priority: official
     ttl_days: 30
-    last_synced: null
-    extracted: false
+    extracted: true
 
-  - type: repo
-    repo: "google/nowinandroid"
-    topics: [architecture, compose]
-    paths: ["app/src/main", "core/*/src/main", "*.md"]
-    priority: reference
-    ttl_days: 14
-    last_synced: null
-    extracted: false
+  - type: doc
+    url: "https://developer.android.com/develop/sensors-and-location/location"
+    topics: [location]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://developer.android.com/guide/app-compatibility"
+    topics: [app-compatibility]
+    priority: official
+    ttl_days: 30
+    extracted: true
+
+  - type: doc
+    url: "https://kotlinlang.org/docs/ksp-overview.html"
+    topics: [kotlin-ksp]
+    priority: official
+    ttl_days: 30
+    extracted: true

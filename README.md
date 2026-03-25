@@ -32,13 +32,23 @@ With docwise:
 # Install the plugin
 claude plugin add nguyenbahung94/docwise
 
-# Pick your tech stack
+# Pick your tech stack (Android comes with 25 pre-built knowledge files)
 /setup
 
 # Start coding — AI automatically follows best practices
 ```
 
-That's it. The AI now references best practices while you code.
+That's it. No LLM, no API tokens, no generation needed. The Android profile ships with **25 pre-built knowledge files** covering Kotlin, Coroutines, Compose, Room, Hilt, Navigation, and more — ready to use immediately.
+
+### Optional: Regenerate or enhance
+
+```bash
+# Regenerate knowledge from scratch (Python only, ~2 min, 0 tokens)
+bash tools/batch_generate.sh --no-enhance
+
+# Enhance with local LLM for deeper analysis (requires Ollama + qwen2.5:14b)
+bash tools/batch_generate.sh
+```
 
 ## How It Works
 
@@ -163,7 +173,7 @@ Pre-configured source lists so you don't start from scratch:
 
 | Profile | What's included | Sources |
 |---|---|---|
-| **Android** | Kotlin, Jetpack, Architecture, Room, Navigation, Hilt, nowinandroid | 7 sources |
+| **Android** | Kotlin, Coroutines, Compose (state, lifecycle, side-effects, phases, navigation, performance), Room, Hilt, Navigation, Material3 + 25 pre-built knowledge files | 22 sources |
 | **React** | React fundamentals, Hooks, Next.js App Router | 3 sources |
 | **Python** | Typing, FastAPI, Django | 3 sources |
 | **iOS** | SwiftUI, Combine | 2 sources |
